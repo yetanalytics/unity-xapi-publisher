@@ -6,16 +6,18 @@ using RestSharp;
 using RestSharp.Authenticators;
 using System.Threading.Tasks;
 using XAPI;
+using Domain;
 
 public class xApiIntegration : MonoBehaviour
 {
     // Start is called before the first frame update
     void Start()
     {
+        CreateStatement();
         //SendStatement();
         //SendForLocation();
         //var statement = new Statement<Location>();
-        dynamic location = new ExpandoObject();
+        /*dynamic location = new ExpandoObject();
         location.City = "New York";
         var statement = new Statement<Agent,Agent> {
             actor = new Agent{
@@ -55,8 +57,16 @@ public class xApiIntegration : MonoBehaviour
                 }
             }
         };
-        print(other_statement.Serialize());
-        print(GetTimestamp(DateTime.Now));
+        print(other_statement.Serialize());*/
+    }
+
+    async void CreateStatement() {
+        var creator = new Create();
+        var statement = await creator.StartedStatement("user@example.com",
+                                                       "http://video.gms/pac-man",
+                                                       "Pac-Man");
+        print(statement.Serialize());
+
     }
 
     async void SendStatement() {
