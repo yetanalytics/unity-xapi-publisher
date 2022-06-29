@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Collections.Generic;
@@ -10,9 +11,15 @@ namespace XAPI {
     {
         public string Serialize()
         {
+            SetTime();
             var opts = new JsonSerializerOptions();
             opts.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
             return JsonSerializer.Serialize<Statement<TActorType,TObjectType>>(this, opts);
+        }
+
+        private void SetTime()
+        {
+            this.timestamp = DateTime.UtcNow.ToString("o",CultureInfo.InvariantCulture);
         }
         public TActorType actor { get; set; }
         public Verb verb { get; set; }
