@@ -14,94 +14,22 @@ public class xApiIntegration : MonoBehaviour
     void Start()
     {
         CreateStatement();
-        //SendStatement();
-        //SendForLocation();
-        //var statement = new Statement<Location>();
-        /*dynamic location = new ExpandoObject();
-        location.City = "New York";
-        var statement = new Statement<Agent,Agent> {
-            actor = new Agent{
-                name = "Obiwan Kenobi"
-            },
-            verb = new Verb{
-                id = "http://starwars.vocab/kicked",
-                display = new LanguageMap {
-                    enUS = "kicked butt"
-                }
-            },
-            objekt = new Agent{
-                name = "Obiwan Kenobi"
-            }
-        };
-        //print(statement.Serialize());
-        var other_statement = new Statement<Agent,Activity> {
-            actor = new Agent{
-                mbox = "obiwan@starwars.co",
-                name = "Obiwan Kenobi"
-            },
-            verb = new Verb{
-                id = "http://starwars.vocab/kicked",
-                display = new LanguageMap {
-                    enUS = "kicked butt"
-                }
-            },
-            objekt = new Activity {
-                id = "http://starwars.vocab/butt",
-                definition = new ActivityDefinition {
-                    name = new LanguageMap {
-                        enUS = "Bill Buttlicker"
-                    },
-                    description = new LanguageMap {
-                        enUS = "Some Guy who likes to lick butt"
-                    }
-                }
-            }
-        };
-        print(other_statement.Serialize());*/
     }
 
     async void CreateStatement() {
         var creator = new Create();
-        var statement = await creator.StartedStatement("user@example.com",
+        var statement = await creator.StartedStatement("mailto:user@example.com",
+                                                       "John Doe",
                                                        "http://video.gms/pac-man",
                                                        "Pac-Man");
-        print(statement.Serialize());
-
-    }
-
-    async void SendStatement() {
-        var response = await PrepareStatement();
+        var sender = new Sender("http://localhost:8080",
+                                "username",
+                                "password");
+        var statementStr = statement.Serialize();
+        var response = await sender.SendStatement(statementStr);
+        print(statementStr);
         print(response.Content);
-    }
-
-    //async void SendForLocation() {
-    //    dynamic response = await PrepareLocationRequest();
-    //    print(response.country);
-    //}
-
-    async Task<RestResponse> PrepareStatement() {
-        var client = new RestClient("http://localhost:8080") {
-            Authenticator = new HttpBasicAuthenticator("username","password")
-        };
-        var request = new RestRequest("/xapi/about");
-        request.AddHeader("Accept", "application/json");
-        request.AddHeader("X-Experience-API-Version", "1.0.1");
-        return await client.GetAsync(request);
-
-    }
-
-    async Task<RestResponse> GetIp() {
-        var client = new RestClient("http://canhazip.com");
-        var request = new RestRequest("");
-        return await client.GetAsync(request);
-
-    }
-
-    async Task<ExpandoObject> GetLocation() {
-        var response = await GetIp();
-        var ip = response.Content;
-        var client = new RestClient("http://ip-api.com");
-        return await client.GetJsonAsync<ExpandoObject>(string.Format("json/{0}", ip));
+        print(response.ResponseStatus);
     }
 
     // Update is called once per frame
