@@ -8,6 +8,6 @@ namespace XAPI {
         public LanguageMap description {set;get;}
         public String type {set;get;}
         public String moreInfo {set;get;}
-        public List<ExpandoObject> extensions {set;get;}
+        public Dictionary<String,ExpandoObject> extensions {set;get;}
     }
 }

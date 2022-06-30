@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace Domain {
-    class Create : MonoBehaviour
+    class Create
     {
         public Create() {
             // set location on initialize
@@ -38,24 +38,24 @@ namespace Domain {
             return await client.GetJsonAsync<ExpandoObject>(string.Format("json/{0}", ip)); //.ConfigureAwait(false);
         }
 
-        //private void GetLocation() {
-        //    print("GetLocation called");
-        //    await GetLocationImpl();
-            //ExpandoObject loc = Task.Run(() => GetLocationImpl).Result;
-        //}
-
         public async Task<Statement<Agent,Activity>> StartedStatement(String userMbox, 
+                                                                      String username,
                                                                       String gameId,
                                                                       String gameDisplay) 
         {
+            dynamic loc = await this.location;
+            dynamic locationObject = new Dictionary<String,ExpandoObject>();
+            locationObject.Add("http://ip-api.com/location",loc);
+             
             return new Statement<Agent,Activity> {
                 actor = new Agent{
-                    mbox = userMbox
+                    mbox = userMbox,
+                    name = username
                 },
-                verb = new Verb{
+                verb = new Verb {
                     id = formVerbId("initialized")
-                },
-                objekt = new Activity{
+                }, 
+                objekt = new Activity {
                     id = gameId,
                     definition = new ActivityDefinition {
                         name = new LanguageMap {
@@ -64,9 +64,7 @@ namespace Domain {
                     }
                 },
                 context = new Context{
-                    extensions = new List<ExpandoObject> {
-                        await this.location
-                    }
+                    extensions = locationObject
                 }
             };
         }

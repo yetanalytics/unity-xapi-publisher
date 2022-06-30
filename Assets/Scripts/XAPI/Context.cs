@@ -10,6 +10,6 @@ namespace XAPI {
         public String revision { set;get; }
         public String language { set;get; }
         public StatementReference statement { set;get; }
-        public List<ExpandoObject> extensions { set;get; }
+        public Dictionary<String,ExpandoObject> extensions { set;get; }
     }
 }

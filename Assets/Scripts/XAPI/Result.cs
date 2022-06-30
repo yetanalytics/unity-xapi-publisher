@@ -10,7 +10,7 @@ namespace XAPI {
         public Boolean completion { get; set; }
         public String response { get; set; }
         public String duration { get; set; }
-        public List<ExpandoObject> extensions {set;get;}
+        public Dictionary<String,ExpandoObject> extensions {set;get;}
 
     }
 }
