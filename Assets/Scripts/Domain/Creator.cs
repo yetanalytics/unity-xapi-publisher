@@ -5,6 +5,7 @@ using RestSharp;
 using System.Dynamic;
 using System.Collections.Generic;
 using UnityEngine;
+using Util;
 
 namespace Domain {
     class Creator
@@ -45,6 +46,15 @@ namespace Domain {
                                                                          String gameDisplay) {
             dynamic loc = await this.location;
             dynamic locationObject = new Dictionary<String,ExpandoObject>();
+            dynamic vrObject = new Dictionary<String,ExpandoObject>();
+            dynamic vrSubsystemMetadata = new ExpandoObject();
+            dynamic vrSettingsMetadata = new ExpandoObject();
+            vrSettingsMetadata.loadedDeviceName = XR.deviceName();
+            vrSubsystemMetadata.running = XR.isPresent();
+            vrObject.Add("https://docs.unity3d.com/ScriptReference/XR.XRDisplaySubsystem.html",
+                         vrSubsystemMetadata);
+            vrObject.Add("https://docs.unity3d.com/ScriptReference/XR.XRSettings.html",
+                         vrSettingsMetadata);
             locationObject.Add("http://ip-api.com/location",loc);
             return new Statement<Agent,Activity> {
                 actor = new Agent{
@@ -62,10 +72,12 @@ namespace Domain {
                     definition = new ActivityDefinition {
                         name = new LanguageMap {
                             enUS = gameDisplay
-                        }
+                        },
+                        extensions = vrObject
                     }
                 },
                 context = new Context{
+                    platform = Application.platform.ToString(),
                     extensions = locationObject
                 }
             };
