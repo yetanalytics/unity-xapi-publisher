@@ -7,9 +7,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace Domain {
-    class Create
+    class Creator
     {
-        public Create() {
+        public Creator() {
             // set location on initialize
             this.location = GetLocation();
         }
@@ -38,22 +38,24 @@ namespace Domain {
             return await client.GetJsonAsync<ExpandoObject>(string.Format("json/{0}", ip)); //.ConfigureAwait(false);
         }
 
-        public async Task<Statement<Agent,Activity>> StartedStatement(String userMbox, 
-                                                                      String username,
-                                                                      String gameId,
-                                                                      String gameDisplay) 
-        {
+        private async Task<Statement<Agent,Activity>> FormBasicStatement(String verbName,
+                                                                         String userMbox, 
+                                                                         String username,
+                                                                         String gameId,
+                                                                         String gameDisplay) {
             dynamic loc = await this.location;
             dynamic locationObject = new Dictionary<String,ExpandoObject>();
             locationObject.Add("http://ip-api.com/location",loc);
-             
             return new Statement<Agent,Activity> {
                 actor = new Agent{
                     mbox = userMbox,
                     name = username
                 },
                 verb = new Verb {
-                    id = formVerbId("initialized")
+                    id = formVerbId(verbName),
+                    display = new LanguageMap {
+                        enUS = verbName
+                    }
                 }, 
                 objekt = new Activity {
                     id = gameId,
@@ -69,26 +71,28 @@ namespace Domain {
             };
         }
 
-        public Statement<Agent,Activity> StartedStatement(String mbox, 
-                                                          String gameId,
-                                                          String gameDisplay, 
-                                                          String gameSectionId,
-                                                          String gameSectionDisplay) 
+        public async Task<Statement<Agent,Activity>> StartedStatement(String userMbox, 
+                                                                      String username,
+                                                                      String gameId,
+                                                                      String gameDisplay) 
         {
-            return new Statement<Agent,Activity>();
+            return await FormBasicStatement("initialized",
+                                            userMbox,
+                                            username,
+                                            gameId,
+                                            gameDisplay);
         }
 
-        public Statement<Agent,Activity> CompletedStatement(String mbox,
-                                                            String gameIdentifier)
+        public async Task<Statement<Agent,Activity>> CompletedStatement(String userMbox, 
+                                                                        String username,
+                                                                        String gameId,
+                                                                        String gameDisplay) 
         {
-            return new Statement<Agent,Activity>();
-        }
-
-        public Statement<Agent,Activity> CompletedStatement(String mbox,
-                                                            String gameIdentifier,
-                                                            String gameSectionIdentifier)
-        {
-            return new Statement<Agent,Activity>();
+            return await FormBasicStatement("completed",
+                                            userMbox,
+                                            username,
+                                            gameId,
+                                            gameDisplay);
         }
     }
 }
