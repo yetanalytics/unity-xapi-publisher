@@ -28,7 +28,7 @@ namespace Domain {
             request.AddHeader("Accept", "application/json");
             request.AddStringBody(statement,DataFormat.Json);
             request.AddHeader("X-Experience-API-Version", "1.0.1");
-            return await client.GetAsync(request);
+            return await client.ExecutePostAsync(request);
         }
     }
 }
