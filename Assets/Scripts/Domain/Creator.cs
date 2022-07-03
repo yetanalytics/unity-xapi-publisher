@@ -11,7 +11,7 @@ namespace Domain {
     class Creator
     {
         public Creator() {
-            // set location on initialize
+            // set location on initialize and cache it.
             this.location = GetLocation();
         }
         
@@ -49,13 +49,18 @@ namespace Domain {
             dynamic vrObject = new Dictionary<String,ExpandoObject>();
             dynamic vrSubsystemMetadata = new ExpandoObject();
             dynamic vrSettingsMetadata = new ExpandoObject();
+            // determines what type of VR device the user is using
             vrSettingsMetadata.loadedDeviceName = XR.deviceName();
+
+            //determines whether or not VR is being used at all.
             vrSubsystemMetadata.running = XR.isPresent();
             vrObject.Add("https://docs.unity3d.com/ScriptReference/XR.XRDisplaySubsystem.html",
                          vrSubsystemMetadata);
             vrObject.Add("https://docs.unity3d.com/ScriptReference/XR.XRSettings.html",
                          vrSettingsMetadata);
             locationObject.Add("http://ip-api.com/location",loc);
+
+            // statement construction
             return new Statement<Agent,Activity> {
                 actor = new Agent{
                     mbox = userMbox,
