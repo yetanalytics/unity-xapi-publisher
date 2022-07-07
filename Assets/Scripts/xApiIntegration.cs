@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
 using System;
+using System.Diagnostics;
 using UnityEngine;
 using RestSharp;
 using RestSharp.Authenticators;
@@ -20,13 +21,15 @@ public class xApiIntegration : MonoBehaviour
     public string lrsSecret;
 
     // Metadata Variables
-    public string emailPref;
-    public string nameDisplayPref;
-    public string gameIdPref;
-    public string gameDisplayPref;
+    public string emailPref = "LRSEmail";
+    public string nameDisplayPref = "LRSUsernameDisplay";
+    public string gameIdPref = "LRSGameId";
+    public string gameDisplayPref = "LRSGameDisplay";
 
     private Creator creator{get {return new Creator();}}
     private Sender sender{get {return new Sender(lrsUrl,lrsKey,lrsSecret);}}
+    public static readonly String REGISTRATION_IDENTIFIER = Guid.NewGuid().ToString();
+    private String registrationIdentifier {get {return REGISTRATION_IDENTIFIER;}}
 
 
     // Start is called before the first frame update
@@ -45,7 +48,8 @@ public class xApiIntegration : MonoBehaviour
         var statement = await creator.StartedStatement(String.Format("mailto:{0}",PlayerPrefs.GetString(emailPref)),
                                                                                   PlayerPrefs.GetString(nameDisplayPref),
                                                                                   PlayerPrefs.GetString(gameIdPref),
-                                                                                  PlayerPrefs.GetString(gameDisplayPref));
+                                                                                  PlayerPrefs.GetString(gameDisplayPref),
+                                                                                  registrationIdentifier);
         var statementStr = statement.Serialize();
         var response = await sender.SendStatement(statementStr);
         print(statementStr);
@@ -57,7 +61,8 @@ public class xApiIntegration : MonoBehaviour
         var statement = await creator.CompletedStatement(String.Format("mailto:{0}",PlayerPrefs.GetString(emailPref)),
                                                                                     PlayerPrefs.GetString(nameDisplayPref),
                                                                                     PlayerPrefs.GetString(gameIdPref),
-                                                                                    PlayerPrefs.GetString(gameDisplayPref));
+                                                                                    PlayerPrefs.GetString(gameDisplayPref),
+                                                                                    registrationIdentifier);
         var statementStr = statement.Serialize();
         var response = await sender.SendStatement(statementStr);
         print(statementStr);

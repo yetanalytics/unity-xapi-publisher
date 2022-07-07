@@ -43,7 +43,8 @@ namespace Domain {
                                                                          String userMbox, 
                                                                          String username,
                                                                          String gameId,
-                                                                         String gameDisplay) {
+                                                                         String gameDisplay,
+                                                                         String registrationIdentifier) {
             dynamic loc = await this.location;
             dynamic locationObject = new Dictionary<String,ExpandoObject>();
             dynamic vrObject = new Dictionary<String,ExpandoObject>();
@@ -82,6 +83,7 @@ namespace Domain {
                     }
                 },
                 context = new Context{
+                    registration = registrationIdentifier,
                     platform = Application.platform.ToString(),
                     extensions = locationObject
                 }
@@ -91,25 +93,29 @@ namespace Domain {
         public async Task<Statement<Agent,Activity>> StartedStatement(String userMbox, 
                                                                       String username,
                                                                       String gameId,
-                                                                      String gameDisplay) 
+                                                                      String gameDisplay,
+                                                                      String registrationIdentifier) 
         {
             return await FormBasicStatement("initialized",
                                             userMbox,
                                             username,
                                             gameId,
-                                            gameDisplay);
+                                            gameDisplay,
+                                            registrationIdentifier);
         }
 
         public async Task<Statement<Agent,Activity>> CompletedStatement(String userMbox, 
                                                                         String username,
                                                                         String gameId,
-                                                                        String gameDisplay) 
+                                                                        String gameDisplay,
+                                                                        String registrationIdentifier) 
         {
             return await FormBasicStatement("completed",
                                             userMbox,
                                             username,
                                             gameId,
-                                            gameDisplay);
+                                            gameDisplay,
+                                            registrationIdentifier);
         }
     }
 }
