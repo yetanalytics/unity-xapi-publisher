@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using RestSharp;
 using System.Dynamic;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using UnityEngine;
 using Util;
 
@@ -12,11 +13,13 @@ namespace Domain {
     {
         public Creator() {
             // set location on initialize and cache it.
-            this.location = GetLocation();
+            this.locationTask = GetLocation();
         }
         
         // setters getters
-        private Task<ExpandoObject> location { set; get; }
+        private Task<ExpandoObject> locationTask { set; get; }
+        private ExpandoObject locationCache = new ExpandoObject();
+        private static readonly ConcurrentDictionary<string, ExpandoObject> downloadCache = new();
         private static readonly String VERB_URI = "http://adlnet.gov/expapi/verbs/";
         private String verbUri { get {return VERB_URI; }}
 
@@ -36,7 +39,16 @@ namespace Domain {
             var response = await GetIp();
             var ip = response.Content;
             var client = new RestClient("http://ip-api.com");
-            return await client.GetJsonAsync<ExpandoObject>(string.Format("json/{0}", ip)); //.ConfigureAwait(false);
+            if (downloadCache.TryGetValue("location", out ExpandoObject location)) {
+                return await Task.FromResult(location);
+            }
+
+            return await Task.Run(async () => {
+                location = await client.GetJsonAsync<ExpandoObject>(string.Format("json/{0}", ip));
+                downloadCache.TryAdd("location",location);
+
+                return location;
+            });
         }
 
         private async Task<Statement<Agent,Activity>> FormBasicStatement(String verbName,
@@ -45,7 +57,7 @@ namespace Domain {
                                                                          String gameId,
                                                                          String gameDisplay,
                                                                          String registrationIdentifier) {
-            dynamic loc = await this.location;
+            dynamic loc = await this.locationTask;
             dynamic locationObject = new Dictionary<String,ExpandoObject>();
             dynamic vrObject = new Dictionary<String,ExpandoObject>();
             dynamic vrSubsystemMetadata = new ExpandoObject();
