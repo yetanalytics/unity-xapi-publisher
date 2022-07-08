@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using UnityEngine;
 using Util;
-using LRS;
 
 namespace LRS
 {
@@ -34,6 +33,8 @@ namespace LRS
             private String nameDisplay { get { return PlayerPrefs.GetString("LRSUsernameDisplay"); } }
             private String gameId { get { return PlayerPrefs.GetString("LRSGameId"); } }
             private String gameDisplay { get { return PlayerPrefs.GetString("LRSGameDisplay"); } }
+            
+            // TODO: make this optional
             private String registrationIdentifier { get { return PlayerPrefs.GetString("LRSSessionIdentifier"); } }
 
             private String formVerbId(String verb)
@@ -81,20 +82,25 @@ namespace LRS
                                                                              String registrationIdentifier)
             {
                 dynamic loc = await this.locationTask;
-                dynamic locationObject = new Dictionary<String, ExpandoObject>();
-                dynamic vrObject = new Dictionary<String, ExpandoObject>();
+                dynamic contextExtension = new Dictionary<String, ExpandoObject>();
+                dynamic objectDefinitionExtension = new Dictionary<String, ExpandoObject>();
                 dynamic vrSubsystemMetadata = new ExpandoObject();
                 dynamic vrSettingsMetadata = new ExpandoObject();
+                dynamic platformSettingsMetadata = new ExpandoObject();
+                platformSettingsMetadata.platform = Application.platform.ToString();
                 // determines what type of VR device the user is using
                 vrSettingsMetadata.loadedDeviceName = XR.deviceName();
 
                 //determines whether or not VR is being used at all.
                 vrSubsystemMetadata.running = XR.isPresent();
-                vrObject.Add("https://docs.unity3d.com/ScriptReference/XR.XRDisplaySubsystem.html",
-                             vrSubsystemMetadata);
-                vrObject.Add("https://docs.unity3d.com/ScriptReference/XR.XRSettings.html",
-                             vrSettingsMetadata);
-                locationObject.Add("http://ip-api.com/location", loc);
+                objectDefinitionExtension.Add("https://docs.unity3d.com/ScriptReference/XR.XRDisplaySubsystem.html",
+                                              vrSubsystemMetadata);
+                objectDefinitionExtension.Add("https://docs.unity3d.com/ScriptReference/XR.XRSettings.html",
+                                              vrSettingsMetadata);
+                contextExtension.Add("http://ip-api.com/location", 
+                                     loc);
+                contextExtension.Add("https://docs.unity3d.com/ScriptReference/Application-platform.html",
+                                     platformSettingsMetadata);
 
                 // statement construction
                 return new Statement<Agent, Activity>
@@ -119,16 +125,16 @@ namespace LRS
                         {
                             name = new LanguageMap
                             {
-                                enUS = gameDisplay  // put this into platform
+                                enUS = gameDisplay
                             },
-                            extensions = vrObject
+                            extensions = objectDefinitionExtension
                         }
                     },
                     context = new Context
                     {
                         registration = registrationIdentifier,
-                        platform = Application.platform.ToString(),// Game ID goes here.
-                        extensions = locationObject // hardware into here
+                        platform = gameId,
+                        extensions = contextExtension
                     }
                 };
             }
