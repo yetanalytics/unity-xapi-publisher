@@ -1,6 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class SetPlayerPrefs : MonoBehaviour
 {
@@ -14,9 +13,11 @@ public class SetPlayerPrefs : MonoBehaviour
         PlayerPrefs.SetString("LRSEmail","user@example.com");
         PlayerPrefs.SetString("LRSUsernameDisplay","John Doe");
 
-        // As for game metadata I'm guessing this will probably be static.
+        // As for game metadata I'm guessing this will probably be static and held inside the session also.
+        // again all is subject to change.
         PlayerPrefs.SetString("LRSGameId", "http://video.games/button-clicker");
         PlayerPrefs.SetString("LRSGameDisplay", "Button Clicker");
+        PlayerPrefs.SetString("LRSSessionIdentifier",Guid.NewGuid().ToString());
         PlayerPrefs.Save();
 
     }

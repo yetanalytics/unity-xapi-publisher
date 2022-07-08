@@ -5,7 +5,7 @@ using RestSharp.Authenticators;
 using System.Threading.Tasks;
 
 
-namespace Domain {
+namespace LRS {
     class Sender {
         public Sender(String LRSUrl,
                       String LRSKey,
