@@ -1,7 +1,7 @@
 using System;
 
 namespace XAPI {
-    interface IObjekt {
+    public interface IObjekt {
         public String objectType {get;}
     }
 }

@@ -3,7 +3,7 @@ using System.Dynamic;
 using System.Collections.Generic;
 
 namespace XAPI {
-    class Context: IExtension {
+    public class Context: IExtension {
         public String registration { set;get; }
         public Agent instructor { set;get; }
         public ContextActivity contextActivities { set;get; }

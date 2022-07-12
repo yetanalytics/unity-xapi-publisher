@@ -1,7 +1,7 @@
 using System;
 
 namespace XAPI {
-    class Attachment {
+    public class Attachment {
         public String usageType { set;get; }
         public LanguageMap display { set;get; }
         public LanguageMap description { set;get; }

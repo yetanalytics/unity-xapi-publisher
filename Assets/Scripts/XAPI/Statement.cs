@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 using System.Collections.Generic;
 
 namespace XAPI {
-    class Statement<TActorType, TObjectType> : IStatement<TActorType, TObjectType>
+    public class Statement<TActorType, TObjectType> : IStatement<TActorType, TObjectType>
         where TActorType : IActor
         where TObjectType : IObjekt
     {

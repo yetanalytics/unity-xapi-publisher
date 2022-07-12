@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.XR;
 
 namespace Util {
-    class XR
+    public class XR
     {
         public static bool isPresent()
         {

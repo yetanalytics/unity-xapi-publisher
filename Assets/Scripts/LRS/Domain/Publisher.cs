@@ -12,7 +12,7 @@ namespace LRS
 {
     namespace Domain
     {
-        class Publisher
+        public class Publisher
         {
             public Publisher(String LRSUrl, String LRSKey, String LRSSecret)
             {

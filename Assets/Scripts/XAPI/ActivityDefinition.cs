@@ -3,7 +3,7 @@ using System.Dynamic;
 using System.Collections.Generic;
 
 namespace XAPI {
-    class ActivityDefinition : IExtension {
+    public class ActivityDefinition : IExtension {
         public LanguageMap name {set;get;}
         public LanguageMap description {set;get;}
         public String type {set;get;}

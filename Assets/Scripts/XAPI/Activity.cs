@@ -1,7 +1,7 @@
 using System;
 
 namespace XAPI {
-    class Activity : IObjekt {
+    public class Activity : IObjekt {
         public static readonly String OBJECT_TYPE = "Activity";
         public String objectType { get  {return OBJECT_TYPE; }}
         public String id { set;get; }

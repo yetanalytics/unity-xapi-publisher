@@ -1,12 +1,11 @@
 using System;
-using XAPI;
 using RestSharp;
 using RestSharp.Authenticators;
 using System.Threading.Tasks;
 
 
 namespace LRS {
-    class Sender {
+    public class Sender {
         public Sender(String LRSUrl,
                       String LRSKey,
                       String LRSSecret) 
