@@ -554,16 +554,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1498532026}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e0a934aef2c29d9f78674962179f2279, type: 3}
+  m_Script: {fileID: 11500000, guid: b20bdbae5c4fc5b36a5554116e649649, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   lrsUrl: http://localhost:8080
   lrsKey: username
   lrsSecret: password
-  emailPref: LRSEmail
-  nameDisplayPref: LRSUsernameDisplay
-  gameIdPref: LRSGameId
-  gameDisplayPref: LRSGameDispllay
 --- !u!1 &1631686168
 GameObject:
   m_ObjectHideFlags: 0
