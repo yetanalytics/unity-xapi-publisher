@@ -6,10 +6,8 @@ public class SetPlayerPrefs : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        // I'm guessing that some login flow happens
-        // Data then gets stored inside the session, i.e. PlayerPrefs
-        // We'll just have some variables we instruct whoever uses this
-        // to populate with the userdata.
+        // I'm guessing that some user identification resolution happens
+        // Data then needs to get stored in a persistent session on the client side, i.e. PlayerPrefs
         PlayerPrefs.SetString("LRSEmail","user@example.com");
         PlayerPrefs.SetString("LRSUsernameDisplay","John Doe");
 
@@ -17,6 +15,8 @@ public class SetPlayerPrefs : MonoBehaviour
         // again all is subject to change.
         PlayerPrefs.SetString("LRSGameId", "http://video.games/button-clicker");
         PlayerPrefs.SetString("LRSGameDisplay", "Button Clicker");
+
+        // session identifier
         PlayerPrefs.SetString("LRSSessionIdentifier",Guid.NewGuid().ToString());
         PlayerPrefs.Save();
 
