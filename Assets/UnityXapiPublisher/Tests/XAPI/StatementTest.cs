@@ -110,4 +110,61 @@ public class StatementTest
 
         Assert.AreSame(statement.attachments[0].description.enUS, "Description goes here");
     }
+
+    [Test]
+    public void StatementActorAsGroupSet() 
+    {
+        var group = new Group
+        {
+            name = "testGroup"
+        };
+
+        var statement = new Statement<Group, Activity>{
+            actor = group
+        };
+
+        Assert.AreSame(group, statement.actor);
+    }
+
+    [Test]
+    public void StatementActivityAsAgentSet() 
+    {
+        var agent = new Agent
+        {
+            mbox = "mailto:user@example.com"
+        };
+
+        var statement = new Statement<Agent, Agent>{
+            objekt = agent
+        };
+
+        Assert.AreSame(agent, statement.objekt);
+    }
+
+    [Test]
+    public void StatementActivityAsGroupSet() 
+    {
+        var group = new Group
+        {
+            name = "testGroup"
+        };
+
+        var statement = new Statement<Group, Group>{
+            objekt = group
+        };
+
+        Assert.AreSame(group, statement.objekt);
+    }
+
+    [Test]
+    public void StatementActivityAsStatementReferenceSet() 
+    {
+        var sr = new StatementReference{};
+
+        var statement = new Statement<Group, StatementReference>{
+            objekt = sr
+        };
+
+        Assert.AreSame(sr, statement.objekt);
+    }
 }
