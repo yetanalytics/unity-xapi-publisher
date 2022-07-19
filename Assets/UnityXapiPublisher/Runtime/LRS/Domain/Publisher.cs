@@ -239,6 +239,14 @@ namespace LRS
                 Debug.Log(response.ResponseStatus);
 
             }
+
+            async void SendScratchStatement<TActor, TObjekt>(Statement<TActor, TObjekt> statement) 
+                where TActor: IActor
+                where TObjekt: IObjekt
+            {
+                var statementStr = statement.Serialize();
+                var response = await sender.SendStatement(statementStr);
+            }
         }
     }
 }
