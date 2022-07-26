@@ -1,5 +1,5 @@
 {
-  "name": "com.unity.UnityXapiPublisher",
+  "name": "com.yetanalytics.unity-xapi-publisher",
   "version": "1.0.0",
   "displayName": "Unity Xapi Publisher",
   "description": "This package gives you the tooling needed to send basic statements to an LRS",
