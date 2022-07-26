@@ -20,11 +20,14 @@ Since this packages upstream dependencies depend on some tooling from .NET 4.x a
 
 ## Installation
 
-### Importing the Unity Package
+### Use the Unity Package Manager to download the URL.
 
-1. In the unity editor go ahead and select Assets > Import Package > Custom Package...
-2. navigate to the directory where you stored the UnityXapiPublisher.unitypackage, and select it
-3. Hit Open and wait while Unity imports the file.*
+1. In the unity editor navigate to the Package Manager via `Window > Package Manager`
+2. Select the + icon in the upper right hand side and click `Add package from git URL...`
+3. In the text box enter the following:
+ - if you are using https: https://github.com/yetanalytics/unity-xapi-publisher.git
+ - if you are using ssh: git@github.com:yetanalytics/unity-xapi-publisher.git
+4. hit the Add button. This will download the URL and dump the contents in unity's package cache. It will be accessible in your project inspector via Packages/unity-xapi-publisher.
 
 *Please Note that if you import the file and there's an exception, it is likely that your project is referring to the incorrect .NET version. Please go to the `.NET 4.x` for steps on how to fix this.
 
@@ -77,8 +80,8 @@ Once that state is all setup let's go ahead and setup a scene with the XAPI Publ
 
 1. Right click on your project hierarchy and create an empty object, You can call it XapiPublisher or anything that fits alongside the hierarchy of your application.
 2. Now select the empty object, and in the inspector click on Add Component
-3. Navigate to Scripts > X Api Integration. (or if you'd like to directly reference this script it is located at `Assets/UnityXapiPublisher/Examples/xApiIntegration.cs`)
-4. Populate the following variables on the script to configure it to talk to the LRS.
+3. Navigate to Scripts > X Api Integration. (or if you'd like to directly reference this script it is located at `Packages/unity-xapi-example/Examples/xApiIntegration.cs`)
+4. Populate the following variables on the script in the inspector to configure it to talk to the LRS.
 
 ### LRS Publisher Configuration Documentation
 
