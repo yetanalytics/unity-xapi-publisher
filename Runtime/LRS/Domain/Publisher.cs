@@ -21,6 +21,36 @@ namespace LRS
                 this.locationTask = GetLocation();
             }
 
+            private Agent formAgent() {
+                bool hasEmail = PlayerPrefs.HasKey("LRSEmail");
+                bool hasAccount = PlayerPrefs.HasKey("LRSAccountId") && PlayerPrefs.HasKey("LRSHomepage");
+                if (hasEmail) 
+                {
+                    return new Agent 
+                    {
+                        mbox = PlayerPrefs.GetString("LRSEmail"),
+                        name = PlayerPrefs.GetString("LRSUsernameDisplay")
+                    };
+                }
+                else if (hasAccount)
+                {
+                    return new Agent
+                    {
+                        account = new AgentAccount
+                        {
+                            homePage = PlayerPrefs.GetString("LRSHomepage"),
+                            name = PlayerPrefs.GetString("LRSAccountId")
+                        },
+                        name = PlayerPrefs.GetString("LRSUsernameDisplay")
+                    };
+
+                }
+                else
+                {
+                    throw new ArgumentException("Invalid user identifiers. Must supply the following in PlayerPrefs: (LRSAccountId + LRSHomepage) OR LRSEmail");
+                }
+            }
+
             // setters getters
             private Task<ExpandoObject> locationTask { set; get; }
             private static readonly ConcurrentDictionary<string, ExpandoObject> downloadCache = new();
@@ -30,6 +60,8 @@ namespace LRS
 
             // Player Data
             private String email { get { return String.Format("mailto:{0}", PlayerPrefs.GetString("LRSEmail")); } }
+
+            private Agent user { get { return formAgent(); } }
             private String nameDisplay { get { return PlayerPrefs.GetString("LRSUsernameDisplay"); } }
             private String gameId { get { return PlayerPrefs.GetString("LRSGameId"); } }
             private String gameDisplay { get { return PlayerPrefs.GetString("LRSGameDisplay"); } }
@@ -75,8 +107,7 @@ namespace LRS
 
             private async Task<Statement<Agent, Activity>> FormBasicStatement(String verbId,
                                                                              String verbDisplay,
-                                                                             String userMbox,
-                                                                             String username,
+                                                                             Agent user,
                                                                              String gameId,
                                                                              String gameDisplay,
                                                                              String registrationIdentifier)
@@ -105,11 +136,7 @@ namespace LRS
                 // statement construction
                 return new Statement<Agent, Activity>
                 {
-                    actor = new Agent
-                    {
-                        mbox = userMbox,
-                        name = username
-                    },
+                    actor = user,
                     verb = new Verb
                     {
                         id = verbId,
@@ -139,31 +166,27 @@ namespace LRS
                 };
             }
 
-            public async Task<Statement<Agent, Activity>> StartedStatement(String userMbox,
-                                                                          String username,
+            public async Task<Statement<Agent, Activity>> StartedStatement(Agent user,
                                                                           String gameId,
                                                                           String gameDisplay,
                                                                           String registrationIdentifier)
             {
                 return await FormBasicStatement(formVerbId("initialized"),
                                                 "Initialized",
-                                                userMbox,
-                                                username,
+                                                user,
                                                 gameId,
                                                 gameDisplay,
                                                 registrationIdentifier);
             }
 
-            public async Task<Statement<Agent, Activity>> CompletedStatement(String userMbox,
-                                                                            String username,
+            public async Task<Statement<Agent, Activity>> CompletedStatement(Agent user,
                                                                             String gameId,
                                                                             String gameDisplay,
                                                                             String registrationIdentifier)
             {
                 return await FormBasicStatement(formVerbId("completed"),
                                                 "Completed",
-                                                userMbox,
-                                                username,
+                                                user,
                                                 gameId,
                                                 gameDisplay,
                                                 registrationIdentifier);
@@ -172,8 +195,7 @@ namespace LRS
 
             public async void SendStartedStatement()
             {
-                var statement = await StartedStatement(email,
-                                                       nameDisplay,
+                var statement = await StartedStatement(user,
                                                        gameId,
                                                        gameDisplay,
                                                        registrationIdentifier);
@@ -186,11 +208,10 @@ namespace LRS
 
             public async void SendCompletedStatement()
             {
-                var statement = await CompletedStatement(email,
-                                                        nameDisplay,
-                                                        gameId,
-                                                        gameDisplay,
-                                                        registrationIdentifier);
+                var statement = await CompletedStatement(user,
+                                                         gameId,
+                                                         gameDisplay,
+                                                         registrationIdentifier);
                 var statementStr = statement.Serialize();
                 var response = await sender.SendStatement(statementStr);
                 Debug.Log(statementStr);
@@ -204,8 +225,7 @@ namespace LRS
             {
                 var statement = await FormBasicStatement(verbId,
                                                          verbDisplay,
-                                                         email,
-                                                         nameDisplay,
+                                                         user,
                                                          gameId,
                                                          gameDisplay,
                                                          registrationIdentifier);
@@ -219,16 +239,14 @@ namespace LRS
 
             async void SendCustomStatement(String verbId,
                                            String verbDisplay,
-                                           String email,
-                                           String nameDisplay,
+                                           Agent user,
                                            String gameId,
                                            String gameDisplay,
                                            String registrationIdentifier)
             {
                 var statement = await FormBasicStatement(verbId,
                                                          verbDisplay,
-                                                         email,
-                                                         nameDisplay,
+                                                         user,
                                                          gameId,
                                                          gameDisplay,
                                                          registrationIdentifier);
