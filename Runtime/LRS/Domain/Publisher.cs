@@ -59,6 +59,7 @@ namespace LRS
             private Sender sender { set; get; }
 
             // Player Data
+            private bool enableUserLocation { get { return PlayerPrefs.HasKey("LRSEnableUserLocation"); } }
             private String email { get { return String.Format("mailto:{0}", PlayerPrefs.GetString("LRSEmail")); } }
 
             private Agent user { get { return formAgent(); } }
@@ -112,7 +113,6 @@ namespace LRS
                                                                              String gameDisplay,
                                                                              String registrationIdentifier)
             {
-                dynamic loc = await this.locationTask;
                 dynamic contextExtension = new Dictionary<String, ExpandoObject>();
                 dynamic objectDefinitionExtension = new Dictionary<String, ExpandoObject>();
                 dynamic vrSubsystemMetadata = new ExpandoObject();
@@ -128,10 +128,15 @@ namespace LRS
                                               vrSubsystemMetadata);
                 objectDefinitionExtension.Add("https://docs.unity3d.com/ScriptReference/XR.XRSettings.html",
                                               vrSettingsMetadata);
-                contextExtension.Add("http://ip-api.com/location", 
-                                     loc);
                 contextExtension.Add("https://docs.unity3d.com/ScriptReference/Application-platform.html",
                                      platformSettingsMetadata);
+
+                // location
+                if (enableUserLocation) {
+                    dynamic loc = await this.locationTask;
+                    contextExtension.Add("http://ip-api.com/location",
+                                         loc);
+                }
 
                 // statement construction
                 return new Statement<Agent, Activity>
