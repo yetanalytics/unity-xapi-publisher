@@ -50,7 +50,14 @@ public class SetPlayerPrefs : MonoBehaviour
         // Data then needs to get stored in a persistent session on the client side, i.e. PlayerPrefs
 
         // User Identity Data
+
+        // set Account and homepage for a more anonymous and contained identity:
+        PlayerPrefs.SetString("LRSAccountId","123456789");
+        PlayerPrefs.SetString("LRSHomepage","https://www.yetanalytics.com");
+
+        // Or if you prefer, Email can be set the following way:
         PlayerPrefs.SetString("LRSEmail","user@example.com");
+
         PlayerPrefs.SetString("LRSUsernameDisplay","John Doe");
 
         // Game Identity Data
@@ -69,6 +76,8 @@ public class SetPlayerPrefs : MonoBehaviour
 |Variable Name | Description |
 | -----------  | ----------- |
 |LRSEmail      | User ID in the form of an email. Follows the [RFC 3987](https://datatracker.ietf.org/doc/html/rfc3987) specification.|
+|LRSAccountId  | A User ID that's contained within a system. (Requires LRSHomepage to be set).|
+|LRSHomepage   | A homepage for the LRSAccountId (Requires LRSAccountId to be set).|
 |LRSUsernameDisplay | A human readable username display.|
 |LRSGameId | A Game ID in the form of an IRI. Follows the [RFC 3987](https://datatracker.ietf.org/doc/html/rfc3987) specification.|
 |LRSGameDisplay| A human readable display of the game being played.|
