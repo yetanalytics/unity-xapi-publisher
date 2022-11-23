@@ -8,16 +8,7 @@ namespace Util {
     {
         public static bool isPresent()
         {
-            var xrDisplaySubsystems = new List<XRDisplaySubsystem>();
-            SubsystemManager.GetInstances<XRDisplaySubsystem>(xrDisplaySubsystems);
-            foreach (var xrDisplay in xrDisplaySubsystems)
-            {
-                if (xrDisplay.running)
-                {
-                    return true;
-                }
-            }
-            return false;
+            return XRDevice.isPresent;
         }
 
         // returns empty string if device is not present

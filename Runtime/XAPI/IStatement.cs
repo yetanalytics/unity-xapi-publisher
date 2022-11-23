@@ -3,14 +3,14 @@ using System.Collections.Generic;
 
 namespace XAPI {
     interface IStatement<TActorType, TObjectType> {
-        public TActorType actor { get; set; }
-        public Verb verb { get; set; }
-        public TObjectType objekt { get; set; }
-        public Result result { get; set; }
-        public Context context { get; set; }
-        public String timestamp { get; set; }
-        public Agent authority { get;set; }
-        public List<Attachment> attachments { set;get; }
+        TActorType actor { get; set; }
+        Verb verb { get; set; }
+        TObjectType objekt { get; set; }
+        Result result { get; set; }
+        Context context { get; set; }
+        String timestamp { get; set; }
+        Agent authority { get;set; }
+        List<Attachment> attachments { set;get; }
 
     }
 }

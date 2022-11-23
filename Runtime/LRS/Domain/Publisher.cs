@@ -53,7 +53,7 @@ namespace LRS
 
             // setters getters
             private Task<ExpandoObject> locationTask { set; get; }
-            private static readonly ConcurrentDictionary<string, ExpandoObject> downloadCache = new();
+            private static readonly ConcurrentDictionary<string, ExpandoObject> downloadCache = new ConcurrentDictionary<string, ExpandoObject> ();
             private static readonly String VERB_URI = "http://adlnet.gov/expapi/verbs/";
             private String verbUri { get { return VERB_URI; } }
             private Sender sender { set; get; }
