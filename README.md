@@ -31,6 +31,10 @@ Since these packages have upstream dependencies that depend on some tooling from
 
 *Please Note that if you import the file and there's an exception, it is likely that your project is referring to the incorrect .NET version. Please go to the `.NET 4.x` for steps on how to fix this.
 
+### For Unity versions 2019.x.x
+
+Use the link https://github.com/yetanalytics/unity-xapi-publisher-2019.git .
+
 ## Implementation
 
 ### Setting the State.
