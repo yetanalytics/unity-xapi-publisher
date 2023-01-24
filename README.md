@@ -66,6 +66,11 @@ public class SetPlayerPrefs : MonoBehaviour
 
         // Session Identity Data
         PlayerPrefs.SetString("LRSSessionIdentifier",Guid.NewGuid().ToString());
+
+        // Location Data
+        // Add this to the PlayerPrefs if you wish to get user location data
+        PlayerPrefs.SetString("LRSEnableUserLocation", "true");
+
         PlayerPrefs.Save();
 
     }
@@ -75,6 +80,7 @@ public class SetPlayerPrefs : MonoBehaviour
 
 |Variable Name | Description |
 | -----------  | ----------- |
+| LRSEnableUserLocation | This enables the external calls required to get user regional information packaged with the statement. This data is set in `$.context.extensions.http://ip-api.com/location` |
 |LRSEmail      | User ID in the form of an email. Follows the [RFC 3987](https://datatracker.ietf.org/doc/html/rfc3987) specification.|
 |LRSAccountId  | A User ID that's contained within a system. (Requires LRSHomepage to be set).|
 |LRSHomepage   | A homepage for the LRSAccountId (Requires LRSAccountId to be set).|
