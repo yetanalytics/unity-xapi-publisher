@@ -28,7 +28,7 @@ namespace LRS
                 {
                     return new Agent 
                     {
-                        mbox = PlayerPrefs.GetString("LRSEmail"),
+                        mbox = "mailto:" + PlayerPrefs.GetString("LRSEmail"),
                         name = PlayerPrefs.GetString("LRSUsernameDisplay")
                     };
                 }
