@@ -1,3 +1,16 @@
 {
-	"name": "XAPI"
+    "name": "XAPI",
+    "rootNamespace": "",
+    "references": [
+        "GUID:b278dc884bb5bac48823091dd98ac2fc"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }
