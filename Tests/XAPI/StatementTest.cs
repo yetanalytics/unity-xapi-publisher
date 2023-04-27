@@ -6,6 +6,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 using XAPI;
+using XAPI.Metadata;
 
 public class StatementTest
 {
@@ -66,18 +67,19 @@ public class StatementTest
     [Test]
     public void StatementContextSet()
     {
-        dynamic tiefighter = new ExpandoObject();
-        tiefighter.alleigance = "Empire";
-        var extension = new Dictionary<String, ExpandoObject>();
 
-        extension.Add("http://wiki.com/tiefighter", tiefighter);
+        var extension = new Extension () {
+            location = new Location() {
+                region = "US"
+            }
+        };
         
         var statement = new Statement<Agent, Activity>(){
             context = new Context {
                 extensions = extension
             }
         };
-        Assert.AreSame(statement.context.extensions["http://wiki.com/tiefighter"],tiefighter);
+        Assert.AreSame(statement.context.extensions.location.region,"US");
     }
 
     [Test]
