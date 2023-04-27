@@ -1,9 +1,8 @@
 using System;
 using XAPI;
+using XAPI.Metadata;
 using System.Threading.Tasks;
 using RestSharp;
-using System.Dynamic;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
 using UnityEngine;
 using Util;
@@ -52,8 +51,8 @@ namespace LRS
             }
 
             // setters getters
-            private Task<ExpandoObject> locationTask { set; get; }
-            private static readonly ConcurrentDictionary<string, ExpandoObject> downloadCache = new();
+            private Task<Location> locationTask { set; get; }
+            private static readonly ConcurrentDictionary<string, Location> downloadCache = new();
             private static readonly String VERB_URI = "http://adlnet.gov/expapi/verbs/";
             private String verbUri { get { return VERB_URI; } }
             private Sender sender { set; get; }
@@ -84,14 +83,14 @@ namespace LRS
 
             }
 
-            private async Task<ExpandoObject> GetLocation()
+            private async Task<Location> GetLocation()
             {
                 var response = await GetIp();
                 var ip = response.Content;
                 var client = new RestClient("http://ip-api.com");
 
                 // return whatever we get out of the cache if something exists there.
-                if (downloadCache.TryGetValue("location", out ExpandoObject location))
+                if (downloadCache.TryGetValue("location", out Location location))
                 {
                     return await Task.FromResult(location);
                 }
@@ -99,7 +98,7 @@ namespace LRS
                 // otherwise, we go ahead and populate the cache by calling the API
                 return await Task.Run(async () =>
                 {
-                    location = await client.GetJsonAsync<ExpandoObject>(string.Format("json/{0}", ip));
+                    location = await client.GetJsonAsync<Location>(string.Format("json/{0}", ip));
                     downloadCache.TryAdd("location", location);
 
                     return location;
@@ -113,29 +112,28 @@ namespace LRS
                                                                              String gameDisplay,
                                                                              String registrationIdentifier)
             {
-                dynamic contextExtension = new Dictionary<String, ExpandoObject>();
-                dynamic objectDefinitionExtension = new Dictionary<String, ExpandoObject>();
-                dynamic vrSubsystemMetadata = new ExpandoObject();
-                dynamic vrSettingsMetadata = new ExpandoObject();
-                dynamic platformSettingsMetadata = new ExpandoObject();
-                platformSettingsMetadata.platform = Application.platform.ToString();
-                // determines what type of VR device the user is using
-                vrSettingsMetadata.loadedDeviceName = XR.deviceName();
+                Extension contextExtension = new Extension() {
+                    platformSettingsMetadata = new PlatformSettings() {
+                        platform = Application.platform.ToString()
+                    }
+                };
 
-                //determines whether or not VR is being used at all.
-                vrSubsystemMetadata.running = XR.isPresent();
-                objectDefinitionExtension.Add("https://docs.unity3d.com/ScriptReference/XR.XRDisplaySubsystem.html",
-                                              vrSubsystemMetadata);
-                objectDefinitionExtension.Add("https://docs.unity3d.com/ScriptReference/XR.XRSettings.html",
-                                              vrSettingsMetadata);
-                contextExtension.Add("https://docs.unity3d.com/ScriptReference/Application-platform.html",
-                                     platformSettingsMetadata);
+                Extension objectDefinitionExtension = new Extension() {
+                    vrSettingsMetadata = new VRSettings() {
+                        // determines what type of VR device the user is using
+                        loadedDeviceName = XR.deviceName()
+
+                    },
+                    vrSubsystemMetadata = new VRSubsystems() {
+                        // determines whether or not VR is being used at all
+                        running = XR.isPresent()
+                    }
+                };
 
                 // location
                 if (enableUserLocation) {
-                    dynamic loc = await this.locationTask;
-                    contextExtension.Add("http://ip-api.com/location",
-                                         loc);
+                    Location loc = await this.locationTask;
+                    contextExtension.location = loc;
                 }
 
                 // statement construction
