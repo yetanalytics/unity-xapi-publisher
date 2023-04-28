@@ -1,6 +1,4 @@
 using System;
-using System.Dynamic;
-using System.Collections.Generic;
 
 namespace XAPI {
     public class Context: IExtension {
@@ -11,6 +9,6 @@ namespace XAPI {
         public String platform { set;get; }
         public String language { set;get; }
         public StatementReference statement { set;get; }
-        public Dictionary<String,ExpandoObject> extensions { set;get; }
+        public Extension extensions { set;get; }
     }
 }
