@@ -156,8 +156,8 @@ public class xApiIntegration : MonoBehaviour
         // similarly, with SendCompletedStatement...
         publisher.SendCompletedStatement();
 
-        // or..
-        publisher.SendStartedStatement("http://video.games/clicker/level/1", "Level 1 of clicking game");
+        // or with overrides...
+        publisher.SendCompletedStatement("http://video.games/clicker/level/1", "Level 1 of clicking game");
     }
 
     void OnApplicationQuit() {
