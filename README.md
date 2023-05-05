@@ -61,8 +61,16 @@ public class SetPlayerPrefs : MonoBehaviour
         PlayerPrefs.SetString("LRSUsernameDisplay","John Doe");
 
         // Game Identity Data
+        // This sets the Platform of the statement under context.platform
+        // by default, the object.id (aka the Activity) will also use this as it's identifier:
         PlayerPrefs.SetString("LRSGameId", "http://video.games/button-clicker");
         PlayerPrefs.SetString("LRSGameDisplay", "Button Clicker");
+
+        // In addition to LRSGameId, Set the following if you'd like to override the ActivityId via playerPrefs.
+        // Note that both LRSActivityId and LRSActivityDefinition need to be set in order for this to work:
+        PlayerPrefs.SetString("LRSActivityId", "http://video.games/button-clicker/level/1");
+        PlayerPrefs.SetString("LRSActivityDefinition", "Level 1 of button-clicker");
+
 
         // Session Identity Data
         PlayerPrefs.SetString("LRSSessionIdentifier",Guid.NewGuid().ToString());
@@ -78,16 +86,18 @@ public class SetPlayerPrefs : MonoBehaviour
 ```
 ### Session Variable Documentation
 
-|Variable Name | Description |
-| -----------  | ----------- |
-| LRSEnableUserLocation | This enables the external calls required to get user regional information packaged with the statement. This data is set in `$.context.extensions.http://ip-api.com/location` |
-|LRSEmail      | User ID in the form of an email. Follows the [RFC 3987](https://datatracker.ietf.org/doc/html/rfc3987) specification.|
-|LRSAccountId  | A User ID that's contained within a system. (Requires LRSHomepage to be set).|
-|LRSHomepage   | A homepage for the LRSAccountId (Requires LRSAccountId to be set).|
-|LRSUsernameDisplay | A human readable username display.|
-|LRSGameId | A Game ID in the form of an IRI. Follows the [RFC 3987](https://datatracker.ietf.org/doc/html/rfc3987) specification.|
-|LRSGameDisplay| A human readable display of the game being played.|
-|LRSSessionIdentifier| A UUID that uniquely identifies the session being engaged with. This is something that would get set whenever the user initializes a new session.|
+|Variable Name | Description | Statement Fields Populated |
+| -----------  | ----------- | ----------- |
+|LRSEnableUserLocation | This enables the external calls required to get user regional information packaged with the statement. | `$.context.extensions.http://ip-api.com/location`|
+|LRSEmail      | User ID in the form of an email. Follows the [RFC 3987](https://datatracker.ietf.org/doc/html/rfc3987) specification.| `$.actor.mbox`|
+|LRSAccountId  | A User ID that's contained within a system. (Requires LRSHomepage to be set).| `$.actor.account.name`|
+|LRSHomepage   | A homepage for the LRSAccountId (Requires LRSAccountId to be set).| `$.actor.account.homePage`|
+|LRSUsernameDisplay | A human readable username display.| `$.actor.name` |
+|LRSGameId | A Game ID in the form of an IRI. Follows the [RFC 3987](https://datatracker.ietf.org/doc/html/rfc3987) specification.| `$.object.id`, `$.context.platform`|
+|LRSGameDisplay| A human readable display of the game being played.| `$.object.definition.name.en-US`|
+|LRSSessionIdentifier| A UUID that uniquely identifies the session being engaged with. This is something that would get set whenever the user initializes a new session.| `$.context.registration`|
+|LRSActivityId| Optional ActivityID in the form of an IRI. Follows the [RFC 3987](https://datatracker.ietf.org/doc/html/rfc3987) specification.| `$.object.id`|
+|LRSActivityDefinition| human readable activity definition display. | `$.object.definition.name.en-US`|
 
 ### Setting up a Scene
 
@@ -133,17 +143,33 @@ public class xApiIntegration : MonoBehaviour
 
     // Start is called before the first frame update
     void Start() {
+        // by default, SendStartedStatement can be called with no arguments and uses the configuration from PlayerPrefs to populate it's statements
+        // Note that you can set LRSActivityId and LRSActivityDefinition to override the default activity (which is LRSGameId).
         publisher.SendStartedStatement();
+
+        // you can overload SendStartedStatement with a custom ActivityID if you wish to dynamically modify the activity.
+        // this overrides $.object.id and $.object.definition.name.en-US):
+        publisher.SendStartedStatement("http://video.games/clicker/level/1", "Level 1 of clicking game");
     }
 
     // Example of something we can call externally via some object callback (Like a GUI button)
     public void OnButtonPress() {
+        // similarly, with SendCompletedStatement...
         publisher.SendCompletedStatement();
+
+        // or with overrides...
+        publisher.SendCompletedStatement("http://video.games/clicker/level/1", "Level 1 of clicking game");
     }
 
-    // Example of sending a statement only configuring the verb.
     void OnApplicationQuit() {
+        // Example of sending a statement only configuring the verb.
+        // overrides $.verb.id and $.verb.display.en-US
         publisher.SendStatement("http://video.games/verbs/quit", "Quit");
+
+        // Or if you wish to send both a custom verb and activity...
+        // overrides $.verb.id, $.verb.display.en-US, $.object.id, and $.object.definition.name.en-US
+        publisher.SendStatement("http://video.games/verbs/quit", "Quit", "http://video.games/clicker/level/1", "Level 1 of clicking game");
+
     }
 }
 ```
