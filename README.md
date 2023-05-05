@@ -86,18 +86,18 @@ public class SetPlayerPrefs : MonoBehaviour
 ```
 ### Session Variable Documentation
 
-|Variable Name | Description |
-| -----------  | ----------- |
-| LRSEnableUserLocation | This enables the external calls required to get user regional information packaged with the statement. This data is set in `$.context.extensions.http://ip-api.com/location` |
-|LRSEmail      | User ID in the form of an email. Follows the [RFC 3987](https://datatracker.ietf.org/doc/html/rfc3987) specification.|
-|LRSAccountId  | A User ID that's contained within a system. (Requires LRSHomepage to be set).|
-|LRSHomepage   | A homepage for the LRSAccountId (Requires LRSAccountId to be set).|
-|LRSUsernameDisplay | A human readable username display.|
-|LRSGameId | A Game ID in the form of an IRI. Follows the [RFC 3987](https://datatracker.ietf.org/doc/html/rfc3987) specification.|
-|LRSGameDisplay| A human readable display of the game being played.|
-|LRSSessionIdentifier| A UUID that uniquely identifies the session being engaged with. This is something that would get set whenever the user initializes a new session.|
-|LRSActivityId| Optional ActivityID in the form of an IRI. Follows the [RFC 3987](https://datatracker.ietf.org/doc/html/rfc3987) specification.|
-|LRSActivityDefinition| human readable activity definition display. |
+|Variable Name | Description | Statement Fields Populated |
+| -----------  | ----------- | ----------- |
+|LRSEnableUserLocation | This enables the external calls required to get user regional information packaged with the statement. | `$.context.extensions.http://ip-api.com/location`|
+|LRSEmail      | User ID in the form of an email. Follows the [RFC 3987](https://datatracker.ietf.org/doc/html/rfc3987) specification.| `$.actor.mbox`|
+|LRSAccountId  | A User ID that's contained within a system. (Requires LRSHomepage to be set).| `$.actor.account.name`|
+|LRSHomepage   | A homepage for the LRSAccountId (Requires LRSAccountId to be set).| `$.actor.account.homePage`|
+|LRSUsernameDisplay | A human readable username display.| `$.actor.name` |
+|LRSGameId | A Game ID in the form of an IRI. Follows the [RFC 3987](https://datatracker.ietf.org/doc/html/rfc3987) specification.| `$.object.id`, `$.context.platform`|
+|LRSGameDisplay| A human readable display of the game being played.| `$.object.definition.name.en-US`|
+|LRSSessionIdentifier| A UUID that uniquely identifies the session being engaged with. This is something that would get set whenever the user initializes a new session.| `$.context.registration`|
+|LRSActivityId| Optional ActivityID in the form of an IRI. Follows the [RFC 3987](https://datatracker.ietf.org/doc/html/rfc3987) specification.| `$.object.id`|
+|LRSActivityDefinition| human readable activity definition display. | `$.object.definition.name.en-US`|
 
 ### Setting up a Scene
 
@@ -147,7 +147,7 @@ public class xApiIntegration : MonoBehaviour
         // Note that you can set LRSActivityId and LRSActivityDefinition to override the default activity (which is LRSGameId).
         publisher.SendStartedStatement();
 
-        // you can overload SendStartedStatement with a custom ActivityID if you wish to dynamically modify the activity like so:
+        // you can overload SendStartedStatement with a custom ActivityID if you wish to dynamically modify the activity like so (overrides $.object.id and $.object.definition.name.en-US):
         publisher.SendStartedStatement("http://video.games/clicker/level/1", "Level 1 of clicking game");
     }
 
