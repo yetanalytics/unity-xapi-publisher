@@ -147,7 +147,8 @@ public class xApiIntegration : MonoBehaviour
         // Note that you can set LRSActivityId and LRSActivityDefinition to override the default activity (which is LRSGameId).
         publisher.SendStartedStatement();
 
-        // you can overload SendStartedStatement with a custom ActivityID if you wish to dynamically modify the activity like so (overrides $.object.id and $.object.definition.name.en-US):
+        // you can overload SendStartedStatement with a custom ActivityID if you wish to dynamically modify the activity.
+        // this overrides $.object.id and $.object.definition.name.en-US):
         publisher.SendStartedStatement("http://video.games/clicker/level/1", "Level 1 of clicking game");
     }
 
@@ -162,9 +163,11 @@ public class xApiIntegration : MonoBehaviour
 
     void OnApplicationQuit() {
         // Example of sending a statement only configuring the verb.
+        // overrides $.verb.id and $.verb.display.en-US
         publisher.SendStatement("http://video.games/verbs/quit", "Quit");
 
         // Or if you wish to send both a custom verb and activity...
+        // overrides $.verb.id, $.verb.display.en-US, $.object.id, and $.object.definition.name.en-US
         publisher.SendStatement("http://video.games/verbs/quit", "Quit", "http://video.games/clicker/level/1", "Level 1 of clicking game");
 
     }
