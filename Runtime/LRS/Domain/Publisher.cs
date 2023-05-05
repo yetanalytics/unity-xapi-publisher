@@ -23,9 +23,9 @@ namespace LRS
             private Agent formAgent() {
                 bool hasEmail = PlayerPrefs.HasKey("LRSEmail");
                 bool hasAccount = PlayerPrefs.HasKey("LRSAccountId") && PlayerPrefs.HasKey("LRSHomepage");
-                if (hasEmail) 
+                if (hasEmail)
                 {
-                    return new Agent 
+                    return new Agent
                     {
                         mbox = "mailto:" + PlayerPrefs.GetString("LRSEmail"),
                         name = PlayerPrefs.GetString("LRSUsernameDisplay")
@@ -66,11 +66,12 @@ namespace LRS
             private String gameId { get { return PlayerPrefs.GetString("LRSGameId"); } }
             private String gameDisplay { get { return PlayerPrefs.GetString("LRSGameDisplay"); } }
 
-            private bool hasCustomActivityEnv { get { return PlayerPrefs.HasKey("LRSActivityId"); } }
+            private bool hasCustomActivityEnv { get { return PlayerPrefs.HasKey("LRSActivityId") &&
+                                                             PlayerPrefs.HasKey("LRSActivityDefinition"); } }
 
             private String customActivityId { get { return PlayerPrefs.GetString("LRSActivityId"); } }
             private String customActivityDefinition { get { return PlayerPrefs.GetString("LRSActivityDefinition"); } }
-            
+
             // TODO: make this optional
             private String registrationIdentifier { get { return PlayerPrefs.GetString("LRSSessionIdentifier"); } }
 
@@ -301,7 +302,7 @@ namespace LRS
 
             }
 
-            async void SendScratchStatement<TActor, TObjekt>(Statement<TActor, TObjekt> statement) 
+            async void SendScratchStatement<TActor, TObjekt>(Statement<TActor, TObjekt> statement)
                 where TActor: IActor
                 where TObjekt: IObjekt
             {
