@@ -260,7 +260,7 @@ namespace LRS
                                                          registrationIdentifier);
                 var statementStr = statement.Serialize();
                 var response = await sender.SendStatement(statementStr);
-                DebugStatements(statementStr, response);
+                // DebugStatements(statementStr, response);
 
             }
 
@@ -279,7 +279,7 @@ namespace LRS
                                                          activityDisplay);
                 var statementStr = statement.Serialize();
                 var response = await sender.SendStatement(statementStr);
-                DebugStatements(statementStr, response);
+                // DebugStatements(statementStr, response);
 
             }
 
@@ -298,7 +298,7 @@ namespace LRS
                                                          registrationIdentifier);
                 var statementStr = statement.Serialize();
                 var response = await sender.SendStatement(statementStr);
-                DebugStatements(statementStr, response);
+                // DebugStatements(statementStr, response);
 
             }
 
