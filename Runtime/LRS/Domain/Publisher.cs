@@ -289,6 +289,7 @@ namespace LRS
                                                          registrationIdentifier,
                                                          activityID,
                                                          activityDisplay);
+                InvokeStatementSent(statement);
                 var statementStr = statement.Serialize();
                 var response = await sender.SendStatement(statementStr);
                 // DebugStatements(statementStr, response);
