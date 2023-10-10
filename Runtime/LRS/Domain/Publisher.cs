@@ -12,7 +12,7 @@ namespace LRS
     namespace Domain
     {
         // callback for Statement sendoff hook
-        public delegate void StatementSendoffEventHandler(Statement<Agent, Acitvity> statement);
+        public delegate void StatementSendoffEventHandler(Statement<Agent, Activity> statement);
 
         public class Publisher
         {
@@ -26,7 +26,7 @@ namespace LRS
             // statement sendoff hook definition
             public static event StatementSendoffEventHandler OnStatementSent;
 
-            public static void InvokeStatementSent(Statement<Agent, Acitvity> statement)
+            public static void InvokeStatementSent(Statement<Agent, Activity> statement)
             {
                 OnStatementSent?.Invoke(statement);
             }
