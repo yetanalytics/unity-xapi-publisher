@@ -12,7 +12,7 @@ namespace LRS
     namespace Domain
     {
         // callback for Statement sendoff hook
-        public delegate void StatementSendoffEventHandler(Statement<Agent, Activity> statement);
+        public delegate void StatementSendoffEventHandler(Statement<Agent, Acitvity> statement);
 
         public class Publisher
         {
