@@ -11,6 +11,9 @@ namespace LRS
 {
     namespace Domain
     {
+        // callback for Statement sendoff hook
+        public delegate void StatementSendoffEventHandler(Statement<Agent, Activity> statement);
+
         public class Publisher
         {
             public Publisher(String LRSUrl, String LRSKey, String LRSSecret)
@@ -18,6 +21,14 @@ namespace LRS
                 // set location on initialize and cache it.
                 this.sender = new Sender(LRSUrl, LRSKey, LRSSecret);
                 this.locationTask = GetLocation();
+            }
+
+            // statement sendoff hook definition
+            public static event StatementSendoffEventHandler OnStatementSent;
+
+            public static void InvokeStatementSent(Statement<Agent, Acitvity> statement)
+            {
+                OnStatementSent?.Invoke(statement);
             }
 
             private Agent formAgent() {
@@ -258,6 +269,7 @@ namespace LRS
                                                          gameId,
                                                          gameDisplay,
                                                          registrationIdentifier);
+                InvokeStatementSent(statement);
                 var statementStr = statement.Serialize();
                 var response = await sender.SendStatement(statementStr);
                 // DebugStatements(statementStr, response);
