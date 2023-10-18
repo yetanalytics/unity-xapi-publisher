@@ -9,9 +9,13 @@ namespace XAPI {
         where TActorType : IActor
         where TObjectType : IObjekt
     {
-        public string Serialize()
+        public Statement()
         {
             SetTime();
+        }
+
+        public string Serialize()
+        {
             var opts = new JsonSerializerOptions();
             opts.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
             return JsonSerializer.Serialize<Statement<TActorType,TObjectType>>(this, opts);
@@ -21,6 +25,7 @@ namespace XAPI {
         {
             this.timestamp = DateTime.UtcNow.ToString("o",CultureInfo.InvariantCulture);
         }
+
         public TActorType actor { get; set; }
         public Verb verb { get; set; }
         [JsonPropertyName("object")]
