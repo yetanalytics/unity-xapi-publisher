@@ -127,7 +127,8 @@ namespace LRS
                                                                               Agent user,
                                                                               String gameId,
                                                                               String gameDisplay,
-                                                                              String registrationIdentifier)
+                                                                              String registrationIdentifier
+                                                                              Func<Statement<Agent, Activity>, Statement<Agent, Activity>> statementFn)
             {
                 Extension contextExtension = new Extension() {
                     platformSettingsMetadata = new PlatformSettings() {
@@ -163,7 +164,7 @@ namespace LRS
                 }
 
                 // statement construction
-                return new Statement<Agent, Activity>
+                var statement = new Statement<Agent, Activity>
                 {
                     actor = user,
                     verb = new Verb
@@ -182,7 +183,11 @@ namespace LRS
                         extensions = contextExtension
                     }
                 };
+
+                return statementFn(statement);
             }
+
+
 
             private async Task<Statement<Agent, Activity>> FormBasicStatement(String verbId,
                                                                               String verbDisplay,
@@ -191,16 +196,23 @@ namespace LRS
                                                                               String gameDisplay,
                                                                               String registrationIdentifier,
                                                                               String activityID,
-                                                                              String activityDescription)
+                                                                              String activityDescription
+                                                                              Func<Statement<Agent, Activity>, Statement<Agent, Activity>> statementFn)
             {
+                Func <Statement<Agent, Activity>, Statement<Agent, Activity>> setObjektFn = (s) =>
+                {
+                    s.objekt.id = activityID;
+                    s.objekt.definition.name.enUS = activityDescription;
+                    return statementFn(s);
+
+                }
                 Statement<Agent, Activity> statement =  await FormBasicStatement(verbId,
                                                                                  verbDisplay,
                                                                                  user,
                                                                                  gameId,
                                                                                  gameDisplay,
-                                                                                 registrationIdentifier);
-                statement.objekt.id = activityID;
-                statement.objekt.definition.name.enUS = activityDescription;
+                                                                                 registrationIdentifier,
+                                                                                 setObjektFn);
                 return statement;
 
             }
@@ -263,12 +275,35 @@ namespace LRS
             public async void SendStatement(String verbId,
                                             String verbDisplay)
             {
+                Func <Statement<Agent, Activity>, Statement<Agent, Activity>> identity = (s) =>
+                {
+                    return s;
+                }
                 var statement = await FormBasicStatement(verbId,
                                                          verbDisplay,
                                                          user,
                                                          gameId,
                                                          gameDisplay,
-                                                         registrationIdentifier);
+                                                         registrationIdentifier,
+                                                         identity);
+                InvokeStatementSent(statement);
+                var statementStr = statement.Serialize();
+                var response = await sender.SendStatement(statementStr);
+                // DebugStatements(statementStr, response);
+
+            }
+
+            public async void SendStatement(String verbId,
+                                            String verbDisplay,
+                                            Func <Statement<Agent, Activity>, Statement<Agent, Activity>> statementFn)
+            {
+                var statement = await FormBasicStatement(verbId,
+                                                         verbDisplay,
+                                                         user,
+                                                         gameId,
+                                                         gameDisplay,
+                                                         registrationIdentifier,
+                                                         statementFn);
                 InvokeStatementSent(statement);
                 var statementStr = statement.Serialize();
                 var response = await sender.SendStatement(statementStr);
@@ -281,6 +316,10 @@ namespace LRS
                                             String activityID,
                                             String activityDisplay)
             {
+                Func <Statement<Agent, Activity>, Statement<Agent, Activity>> identity = (s) =>
+                {
+                    return s;
+                }
                 var statement = await FormBasicStatement(verbId,
                                                          verbDisplay,
                                                          user,
@@ -288,7 +327,30 @@ namespace LRS
                                                          gameDisplay,
                                                          registrationIdentifier,
                                                          activityID,
-                                                         activityDisplay);
+                                                         activityDisplay,
+                                                         identity);
+                InvokeStatementSent(statement);
+                var statementStr = statement.Serialize();
+                var response = await sender.SendStatement(statementStr);
+                // DebugStatements(statementStr, response);
+
+            }
+
+            public async void SendStatement(String verbId,
+                                            String verbDisplay,
+                                            String activityID,
+                                            String activityDisplay
+                                            Func <Statement<Agent, Activity>, Statement<Agent, Activity>> statementFn)
+            {
+                var statement = await FormBasicStatement(verbId,
+                                                         verbDisplay,
+                                                         user,
+                                                         gameId,
+                                                         gameDisplay,
+                                                         registrationIdentifier,
+                                                         activityID,
+                                                         activityDisplay,
+                                                         statementFn);
                 InvokeStatementSent(statement);
                 var statementStr = statement.Serialize();
                 var response = await sender.SendStatement(statementStr);
@@ -303,12 +365,17 @@ namespace LRS
                                            String gameDisplay,
                                            String registrationIdentifier)
             {
+                Func <Statement<Agent, Activity>, Statement<Agent, Activity>> identity = (s) =>
+                {
+                    return s;
+                }
                 var statement = await FormBasicStatement(verbId,
                                                          verbDisplay,
                                                          user,
                                                          gameId,
                                                          gameDisplay,
-                                                         registrationIdentifier);
+                                                         registrationIdentifier,
+                                                         identity);
                 var statementStr = statement.Serialize();
                 var response = await sender.SendStatement(statementStr);
                 // DebugStatements(statementStr, response);
