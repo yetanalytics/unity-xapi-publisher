@@ -1,5 +1,5 @@
 using System;
-
+using System.Collections.Generic;
 
 namespace XAPI {
     public class Result : IExtension {

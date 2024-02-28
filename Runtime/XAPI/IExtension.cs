@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 
 namespace XAPI {
     public interface IExtension {
