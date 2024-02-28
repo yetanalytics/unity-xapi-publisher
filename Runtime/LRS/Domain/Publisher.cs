@@ -127,7 +127,7 @@ namespace LRS
                                                                               Agent user,
                                                                               String gameId,
                                                                               String gameDisplay,
-                                                                              String registrationIdentifier
+                                                                              String registrationIdentifier,
                                                                               Func<Statement<Agent, Activity>, Statement<Agent, Activity>> statementFn)
             {
                 Extension contextExtension = new Extension() {
@@ -196,7 +196,7 @@ namespace LRS
                                                                               String gameDisplay,
                                                                               String registrationIdentifier,
                                                                               String activityID,
-                                                                              String activityDescription
+                                                                              String activityDescription,
                                                                               Func<Statement<Agent, Activity>, Statement<Agent, Activity>> statementFn)
             {
                 Func <Statement<Agent, Activity>, Statement<Agent, Activity>> setObjektFn = (s) =>
@@ -205,7 +205,7 @@ namespace LRS
                     s.objekt.definition.name.enUS = activityDescription;
                     return statementFn(s);
 
-                }
+                };
                 Statement<Agent, Activity> statement =  await FormBasicStatement(verbId,
                                                                                  verbDisplay,
                                                                                  user,
@@ -278,7 +278,7 @@ namespace LRS
                 Func <Statement<Agent, Activity>, Statement<Agent, Activity>> identity = (s) =>
                 {
                     return s;
-                }
+                };
                 var statement = await FormBasicStatement(verbId,
                                                          verbDisplay,
                                                          user,
@@ -319,7 +319,7 @@ namespace LRS
                 Func <Statement<Agent, Activity>, Statement<Agent, Activity>> identity = (s) =>
                 {
                     return s;
-                }
+                };
                 var statement = await FormBasicStatement(verbId,
                                                          verbDisplay,
                                                          user,
@@ -339,7 +339,7 @@ namespace LRS
             public async void SendStatement(String verbId,
                                             String verbDisplay,
                                             String activityID,
-                                            String activityDisplay
+                                            String activityDisplay,
                                             Func <Statement<Agent, Activity>, Statement<Agent, Activity>> statementFn)
             {
                 var statement = await FormBasicStatement(verbId,
@@ -368,7 +368,7 @@ namespace LRS
                 Func <Statement<Agent, Activity>, Statement<Agent, Activity>> identity = (s) =>
                 {
                     return s;
-                }
+                };
                 var statement = await FormBasicStatement(verbId,
                                                          verbDisplay,
                                                          user,
