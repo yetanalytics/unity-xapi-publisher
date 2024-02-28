@@ -1,6 +1,6 @@
 
 namespace XAPI {
     public interface IExtension {
-        public Extension extensions {set;get;}
+        public Dictionary<string,object> extensions {set;get;}
     }
 }

@@ -6,6 +6,6 @@ namespace XAPI {
         public LanguageMap description {set;get;}
         public String type {set;get;}
         public String moreInfo {set;get;}
-        public Extension extensions {set;get;}
+        public Dictionary<string, object> extensions {set;get;}
     }
 }

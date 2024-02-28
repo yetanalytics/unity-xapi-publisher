@@ -9,6 +9,6 @@ namespace XAPI {
         public String platform { set;get; }
         public String language { set;get; }
         public StatementReference statement { set;get; }
-        public Extension extensions { set;get; }
+        public Dictionary<string,object> extensions { set;get; }
     }
 }

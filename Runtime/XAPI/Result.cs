@@ -8,7 +8,7 @@ namespace XAPI {
         public Boolean completion { get; set; }
         public String response { get; set; }
         public String duration { get; set; }
-        public Extension extensions {set;get;}
+        public Dictionary<string,object> extensions {set;get;}
 
     }
 }
