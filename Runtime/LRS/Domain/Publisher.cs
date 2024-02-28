@@ -130,28 +130,20 @@ namespace LRS
                                                                               String registrationIdentifier,
                                                                               Func<Statement<Agent, Activity>, Statement<Agent, Activity>> statementFn)
             {
-                Extension contextExtension = new Extension() {
-                    platformSettingsMetadata = new PlatformSettings() {
-                        platform = Application.platform.ToString()
-                    }
-                };
+                Dictionary<string, object> contextExtension = new Dictionary<string,object>();
+                contextExtension.Add("https://docs.unity3d.com/ScriptReference/Application-platform.html",
+                                     new PlatformSettings() {platform = Application.platform.ToString()});
 
-                Extension objectDefinitionExtension = new Extension() {
-                    vrSettingsMetadata = new VRSettings() {
-                        // determines what type of VR device the user is using
-                        loadedDeviceName = XR.deviceName()
-
-                    },
-                    vrSubsystemMetadata = new VRSubsystems() {
-                        // determines whether or not VR is being used at all
-                        running = XR.isPresent()
-                    }
-                };
+                Dictionary<string, object> objectDefinitionExtension = new Dictionary<string,object>();
+                contextDefinitionExtension.Add("https://docs.unity3d.com/ScriptReference/XR.XRSettings.html",
+                                               new VRSettings() {loadedDeviceName = XR.deviceName()});
+                contextDefinitionExtension.Add("https://docs.unity3d.com/ScriptReference/XR.XRDisplaySubsystem.html",
+                                               new VRSubsystems() {running = XR.isPresent()});
 
                 // location
                 if (enableUserLocation) {
                     Location loc = await this.locationTask;
-                    contextExtension.location = loc;
+                    contextExtension.Add("http://ip-api.com/location",loc);
                 }
 
                 String activityId = gameId;
@@ -220,7 +212,7 @@ namespace LRS
 
             private Activity FormActivity(String activityID,
                                           String activityDescription,
-                                          Extension extension)
+                                          Dictionary<string,object> extension)
             {
                 return new Activity {
                     id = activityID,
