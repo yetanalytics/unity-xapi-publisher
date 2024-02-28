@@ -136,9 +136,9 @@ namespace LRS
                                      new PlatformSettings() {platform = Application.platform.ToString()});
 
                 Dictionary<string, object> objectDefinitionExtension = new Dictionary<string,object>();
-                contextDefinitionExtension.Add("https://docs.unity3d.com/ScriptReference/XR.XRSettings.html",
-                                               new VRSettings() {loadedDeviceName = XR.deviceName()});
-                contextDefinitionExtension.Add("https://docs.unity3d.com/ScriptReference/XR.XRDisplaySubsystem.html",
+                objectDefinitionExtension.Add("https://docs.unity3d.com/ScriptReference/XR.XRSettings.html",
+                                              new VRSettings() {loadedDeviceName = XR.deviceName()});
+                objectDefinitionExtension.Add("https://docs.unity3d.com/ScriptReference/XR.XRDisplaySubsystem.html",
                                                new VRSubsystems() {running = XR.isPresent()});
 
                 // location
