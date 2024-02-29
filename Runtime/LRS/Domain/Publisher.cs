@@ -64,8 +64,8 @@ namespace LRS
             }
 
             // setters getters
-            private Task<Location> locationTask { set; get; }
-            private static readonly ConcurrentDictionary<string, Location> downloadCache = new();
+            private Task<JsonObject> locationTask { set; get; }
+            private static readonly ConcurrentDictionary<string, JsonObject> downloadCache = new();
             private static readonly String VERB_URI = "http://adlnet.gov/expapi/verbs/";
             private String verbUri { get { return VERB_URI; } }
             private Sender sender { set; get; }
@@ -102,14 +102,14 @@ namespace LRS
 
             }
 
-            private async Task<Location> GetLocation()
+            private async Task<JsonObject> GetLocation()
             {
                 var response = await GetIp();
                 var ip = response.Content;
                 var client = new RestClient("http://ip-api.com");
 
                 // return whatever we get out of the cache if something exists there.
-                if (downloadCache.TryGetValue("location", out Location location))
+                if (downloadCache.TryGetValue("location", out JsonObject location))
                 {
                     return await Task.FromResult(location);
                 }
@@ -117,7 +117,7 @@ namespace LRS
                 // otherwise, we go ahead and populate the cache by calling the API
                 return await Task.Run(async () =>
                 {
-                    location = await client.GetJsonAsync<Location>(string.Format("json/{0}", ip));
+                    location = await client.GetJsonAsync<JsonObject>(string.Format("json/{0}", ip));
                     downloadCache.TryAdd("location", location);
 
                     return location;
@@ -154,8 +154,8 @@ namespace LRS
 
                 // location
                 if (enableUserLocation) {
-                    Location loc = await this.locationTask;
-                    contextExtension.Add("http://ip-api.com/location",loc);
+                    JsonObject loc = await this.locationTask;
+                    contextExtension["http://ip-api.com/location"] = loc;
                 }
 
                 String activityId = gameId;
