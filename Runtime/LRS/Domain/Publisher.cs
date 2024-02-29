@@ -150,7 +150,7 @@ namespace LRS
                     {
                         ["running"] = XR.isPresent()
                     }
-                }
+                };
 
                 // location
                 if (enableUserLocation) {
