@@ -34,7 +34,7 @@ namespace LRS
                 OnStatementSent?.Invoke(statement);
             }
 
-            private Agent formAgent() {
+            private JsonObject formAgent() {
                 bool hasEmail = PlayerPrefs.HasKey("LRSEmail");
                 bool hasAccount = PlayerPrefs.HasKey("LRSAccountId") && PlayerPrefs.HasKey("LRSHomepage");
                 if (hasEmail)
@@ -75,7 +75,7 @@ namespace LRS
             private bool enableUserLocation { get { return PlayerPrefs.HasKey("LRSEnableUserLocation"); } }
             private String email { get { return String.Format("mailto:{0}", PlayerPrefs.GetString("LRSEmail")); } }
 
-            private Agent user { get { return formAgent(); } }
+            private JsonObject user { get { return formAgent(); } }
             private String nameDisplay { get { return PlayerPrefs.GetString("LRSUsernameDisplay"); } }
             private String gameId { get { return PlayerPrefs.GetString("LRSGameId"); } }
             private String gameDisplay { get { return PlayerPrefs.GetString("LRSGameDisplay"); } }
@@ -127,7 +127,7 @@ namespace LRS
 
             private async Task<JsonObject> FormBasicStatement(String verbId,
                                                               String verbDisplay,
-                                                              Agent user,
+                                                              JsonObject user,
                                                               String gameId,
                                                               String gameDisplay,
                                                               String registrationIdentifier,
@@ -197,7 +197,7 @@ namespace LRS
 
             private async Task<JsonObject> FormBasicStatement(String verbId,
                                                               String verbDisplay,
-                                                              Agent user,
+                                                              JsonObject user,
                                                               String gameId,
                                                               String gameDisplay,
                                                               String registrationIdentifier,
@@ -367,7 +367,7 @@ namespace LRS
 
             async void SendCustomStatement(String verbId,
                                            String verbDisplay,
-                                           Agent user,
+                                           JsonObject user,
                                            String gameId,
                                            String gameDisplay,
                                            String registrationIdentifier)
