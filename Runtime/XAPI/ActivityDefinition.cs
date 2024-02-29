@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Text.Json.Nodes;
 
 namespace XAPI {
     public class ActivityDefinition : IExtension {
@@ -7,6 +7,6 @@ namespace XAPI {
         public LanguageMap description {set;get;}
         public String type {set;get;}
         public String moreInfo {set;get;}
-        public Dictionary<string, object> extensions {set;get;}
+        public JsonObject extensions {set;get;}
     }
 }

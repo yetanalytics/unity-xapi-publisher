@@ -1,7 +1,7 @@
-using System.Collections.Generic;
+using System.Text.Json.Nodes;
 
 namespace XAPI {
     public interface IExtension {
-        public Dictionary<string,object> extensions {set;get;}
+        public JsonObject extensions {set;get;}
     }
 }

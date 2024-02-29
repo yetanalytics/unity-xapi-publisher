@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Text.Json.Nodes;
 
 namespace XAPI {
     public class Result : IExtension {
@@ -8,7 +8,7 @@ namespace XAPI {
         public Boolean completion { get; set; }
         public String response { get; set; }
         public String duration { get; set; }
-        public Dictionary<string,object> extensions {set;get;}
+        public JsonObject extensions {set;get;}
 
     }
 }
