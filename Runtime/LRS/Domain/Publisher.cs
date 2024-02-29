@@ -7,6 +7,7 @@ using System.Collections.Concurrent;
 using UnityEngine;
 using Util;
 using System.Collections.Generic;
+using System.Text.Json.Nodes;
 
 namespace LRS
 {
@@ -131,15 +132,25 @@ namespace LRS
                                                                               String registrationIdentifier,
                                                                               Func<Statement<Agent, Activity>, Statement<Agent, Activity>> statementFn)
             {
-                Dictionary<string, object> contextExtension = new Dictionary<string,object>();
-                contextExtension.Add("https://docs.unity3d.com/ScriptReference/Application-platform.html",
-                                     new PlatformSettings() {platform = Application.platform.ToString()});
+                JsonObject contextExtension = new JsonObject
+                {
+                    ["https://docs.unity3d.com/ScriptReference/Application-platform.html"] = new JsonObject
+                    {
+                        ["platform"] = Application.platform.ToString()
+                    }
+                };
 
-                Dictionary<string, object> objectDefinitionExtension = new Dictionary<string,object>();
-                objectDefinitionExtension.Add("https://docs.unity3d.com/ScriptReference/XR.XRSettings.html",
-                                              new VRSettings() {loadedDeviceName = XR.deviceName()});
-                objectDefinitionExtension.Add("https://docs.unity3d.com/ScriptReference/XR.XRDisplaySubsystem.html",
-                                               new VRSubsystems() {running = XR.isPresent()});
+                JsonObject objectDefinitionExtension = new JsonObject
+                {
+                    ["https://docs.unity3d.com/ScriptReference/XR.XRSettings.html"] = new JsonObject
+                    {
+                        ["loadedDeviceName"] = XR.deviceName()
+                    },
+                    ["https://docs.unity3d.com/ScriptReference/XR.XRDisplaySubsystem.html"] = new JsonObject
+                    {
+                        ["running"] = XR.isPresent()
+                    }
+                }
 
                 // location
                 if (enableUserLocation) {
@@ -213,7 +224,7 @@ namespace LRS
 
             private Activity FormActivity(String activityID,
                                           String activityDescription,
-                                          Dictionary<string,object> extension)
+                                          JsonObject extension)
             {
                 return new Activity {
                     id = activityID,
