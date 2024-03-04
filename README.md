@@ -186,16 +186,16 @@ Sometimes in your unity application you need to have access to a given statement
 ```csharp
 using System;
 using UnityEngine;
-using XAPI;
 using LRS.Domain;
+using System.Text.Json.Nodes;
 
 class Hook : MonoBehaviour
 {
 
     // function that fires every time a statement is sent off.
-    private void OnStatementSent(Statement<Agent, Activity> statement)
+    private void OnStatementSent(JsonObject statement)
     {
-        Debug.Log(statement.verb.id);
+        Debug.Log(statement["verb"]["id"]);
     }
 
     // Unity boilerplate for adding hooks to handlers
@@ -222,6 +222,7 @@ using System;
 using UnityEngine;
 using XAPI;
 using LRS.Domain;
+using System.Text.Json.Nodes;
 
 class CustomizeStatements : MonoBehaviour
 {
@@ -235,11 +236,10 @@ class CustomizeStatements : MonoBehaviour
 
     void Start() {
         // define function that modifies statement
-        Func <Statement<Agent, Activity>, Statement<Agent, Activity>> modifyFn = (statement) =>
+        Func <JsonObject, JsonObject> modifyFn = (statement) =>
         {
-            // modify the statement as you see fit
-            statement.objekt.definition.extensions.Add("https://video.games/publisher",
-                                                       new { name = "ACME Games Corp." });
+            // modify the statement
+            statement["object"]["definition"]["extensions"]["https://video.games/publisher"] = new JsonObject{ ["name"] = "ACME Games Corp." });
 
             // make sure to return for the callback
             return statement;
