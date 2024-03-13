@@ -220,7 +220,6 @@ If you need to customize the shape of a statement at sendoff, this can be accomp
 ```csharp
 using System;
 using UnityEngine;
-using XAPI;
 using LRS.Domain;
 using System.Text.Json.Nodes;
 
@@ -239,7 +238,7 @@ class CustomizeStatements : MonoBehaviour
         Func <JsonObject, JsonObject> modifyFn = (statement) =>
         {
             // modify the statement
-            statement["object"]["definition"]["extensions"]["https://video.games/publisher"] = new JsonObject{ ["name"] = "ACME Games Corp." });
+            statement["object"]["definition"]["extensions"]["https://video.games/publisher"] = new JsonObject{ ["name"] = "ACME Games Corp." };
 
             // make sure to return for the callback
             return statement;
