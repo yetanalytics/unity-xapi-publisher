@@ -178,7 +178,83 @@ Please note that SendStartedStatement and SendCompletedStatement are both firing
 
 In the OnApplicationQuit call, I showed an example of how to call the publisher with a custom verb. OnApplicationQuit is a hook that will fire when the user quits the application. If you go ahead and attempt to close out of the player you'll see it fire off stuff again.
 
-There's also a way to make fully custom statements but I'm still trying to figure out the best way to make it clear on how to construct the statements from scratch and what gets included in them.
+
+### Statement Hooks
+
+Sometimes in your unity application you need to have access to a given statement for one reason or another. For this reason there's a way to hook into the statement sendoff from within the application. The following example shows how this is done.
+
+```csharp
+using System;
+using UnityEngine;
+using LRS.Domain;
+using System.Text.Json.Nodes;
+
+class Hook : MonoBehaviour
+{
+
+    // function that fires every time a statement is sent off.
+    private void OnStatementSent(JsonObject statement)
+    {
+        Debug.Log(statement["verb"]["id"]);
+    }
+
+    // Unity boilerplate for adding hooks to handlers
+    private void OnEnable()
+    {
+        Publisher.OnStatementSent += OnStatementSent;
+    }
+
+    // cleanup
+    private void OnDisable()
+    {
+        Publisher.OnStatementSent -= OnStatementSent;
+    }
+
+}
+```
+
+### Customize Statements
+
+If you need to customize the shape of a statement at sendoff, this can be accomplished by overloading the `SendStatement` function with an argument that contains a higher order function that describes the changes you want to make. The following code shows how this is done.
+
+```csharp
+using System;
+using UnityEngine;
+using LRS.Domain;
+using System.Text.Json.Nodes;
+
+class CustomizeStatements : MonoBehaviour
+{
+    // LRS Credentials
+    public string lrsUrl;
+    public string lrsKey;
+    public string lrsSecret;
+
+    // define the publisher
+    private Publisher publisher{get {return new Publisher(lrsUrl,lrsKey,lrsSecret);}}
+
+    void Start() {
+        // define function that modifies statement
+        Func <JsonObject, JsonObject> modifyFn = (statement) =>
+        {
+            // modify the statement
+            statement["object"]["definition"]["extensions"]["https://video.games/publisher"] = new JsonObject{ ["name"] = "ACME Games Corp." };
+
+            // make sure to return for the callback
+            return statement;
+        };
+
+        // pass the function to the sendoff
+        publisher.SendStatement("http://video.games/verbs/start", "Start",
+                                "http://video.games/clicker/level/1", "Level 1 of clicking game",
+                                modifyFn);
+    }
+}
+```
+
+### For anyone transitioning from the 1.0.x build to 1.1.x
+
+Remove any references to the XAPI namespace by deleting the following line: `using XAPI`. this namespace no longer exists.
 
 
 ### Technical mumbo jumbo

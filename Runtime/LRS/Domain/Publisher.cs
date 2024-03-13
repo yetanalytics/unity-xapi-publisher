@@ -1,16 +1,20 @@
 using System;
-using XAPI;
-using XAPI.Metadata;
 using System.Threading.Tasks;
 using RestSharp;
 using System.Collections.Concurrent;
 using UnityEngine;
 using Util;
+using System.Collections.Generic;
+using System.Text.Json.Nodes;
+using System.Globalization;
 
 namespace LRS
 {
     namespace Domain
     {
+        // callback for Statement sendoff hook
+        public delegate void StatementSendoffEventHandler(JsonObject statement);
+
         public class Publisher
         {
             public Publisher(String LRSUrl, String LRSKey, String LRSSecret)
@@ -20,27 +24,35 @@ namespace LRS
                 this.locationTask = GetLocation();
             }
 
-            private Agent formAgent() {
+            // statement sendoff hook definition
+            public static event StatementSendoffEventHandler OnStatementSent;
+
+            public static void InvokeStatementSent(JsonObject statement)
+            {
+                OnStatementSent?.Invoke(statement);
+            }
+
+            private JsonObject formAgent() {
                 bool hasEmail = PlayerPrefs.HasKey("LRSEmail");
                 bool hasAccount = PlayerPrefs.HasKey("LRSAccountId") && PlayerPrefs.HasKey("LRSHomepage");
                 if (hasEmail)
                 {
-                    return new Agent
+                    return new JsonObject
                     {
-                        mbox = "mailto:" + PlayerPrefs.GetString("LRSEmail"),
-                        name = PlayerPrefs.GetString("LRSUsernameDisplay")
+                        ["mbox"] = "mailto:" + PlayerPrefs.GetString("LRSEmail"),
+                        ["name"] = PlayerPrefs.GetString("LRSUsernameDisplay")
                     };
                 }
                 else if (hasAccount)
                 {
-                    return new Agent
+                    return new JsonObject
                     {
-                        account = new AgentAccount
+                        ["account"] = new JsonObject
                         {
-                            homePage = PlayerPrefs.GetString("LRSHomepage"),
-                            name = PlayerPrefs.GetString("LRSAccountId")
+                            ["homePage"] = PlayerPrefs.GetString("LRSHomepage"),
+                            ["name"] = PlayerPrefs.GetString("LRSAccountId")
                         },
-                        name = PlayerPrefs.GetString("LRSUsernameDisplay")
+                        ["name"] = PlayerPrefs.GetString("LRSUsernameDisplay")
                     };
 
                 }
@@ -51,8 +63,8 @@ namespace LRS
             }
 
             // setters getters
-            private Task<Location> locationTask { set; get; }
-            private static readonly ConcurrentDictionary<string, Location> downloadCache = new();
+            private Task<JsonObject> locationTask { set; get; }
+            private static readonly ConcurrentDictionary<string, JsonObject> downloadCache = new();
             private static readonly String VERB_URI = "http://adlnet.gov/expapi/verbs/";
             private String verbUri { get { return VERB_URI; } }
             private Sender sender { set; get; }
@@ -61,7 +73,7 @@ namespace LRS
             private bool enableUserLocation { get { return PlayerPrefs.HasKey("LRSEnableUserLocation"); } }
             private String email { get { return String.Format("mailto:{0}", PlayerPrefs.GetString("LRSEmail")); } }
 
-            private Agent user { get { return formAgent(); } }
+            private JsonObject user { get { return formAgent(); } }
             private String nameDisplay { get { return PlayerPrefs.GetString("LRSUsernameDisplay"); } }
             private String gameId { get { return PlayerPrefs.GetString("LRSGameId"); } }
             private String gameDisplay { get { return PlayerPrefs.GetString("LRSGameDisplay"); } }
@@ -89,14 +101,14 @@ namespace LRS
 
             }
 
-            private async Task<Location> GetLocation()
+            private async Task<JsonObject> GetLocation()
             {
                 var response = await GetIp();
                 var ip = response.Content;
                 var client = new RestClient("http://ip-api.com");
 
                 // return whatever we get out of the cache if something exists there.
-                if (downloadCache.TryGetValue("location", out Location location))
+                if (downloadCache.TryGetValue("location", out JsonObject location))
                 {
                     return await Task.FromResult(location);
                 }
@@ -104,42 +116,45 @@ namespace LRS
                 // otherwise, we go ahead and populate the cache by calling the API
                 return await Task.Run(async () =>
                 {
-                    location = await client.GetJsonAsync<Location>(string.Format("json/{0}", ip));
+                    location = await client.GetJsonAsync<JsonObject>(string.Format("json/{0}", ip));
                     downloadCache.TryAdd("location", location);
 
                     return location;
                 });
             }
 
-            private async Task<Statement<Agent, Activity>> FormBasicStatement(String verbId,
-                                                                              String verbDisplay,
-                                                                              Agent user,
-                                                                              String gameId,
-                                                                              String gameDisplay,
-                                                                              String registrationIdentifier)
+            private async Task<JsonObject> FormBasicStatement(String verbId,
+                                                              String verbDisplay,
+                                                              JsonObject user,
+                                                              String gameId,
+                                                              String gameDisplay,
+                                                              String registrationIdentifier,
+                                                              Func<JsonObject, JsonObject> statementFn)
             {
-                Extension contextExtension = new Extension() {
-                    platformSettingsMetadata = new PlatformSettings() {
-                        platform = Application.platform.ToString()
+                JsonObject contextExtension = new JsonObject
+                {
+                    ["https://docs.unity3d.com/ScriptReference/Application-platform.html"] = new JsonObject
+                    {
+                        ["platform"] = Application.platform.ToString()
                     }
                 };
 
-                Extension objectDefinitionExtension = new Extension() {
-                    vrSettingsMetadata = new VRSettings() {
-                        // determines what type of VR device the user is using
-                        loadedDeviceName = XR.deviceName()
-
+                JsonObject objectDefinitionExtension = new JsonObject
+                {
+                    ["https://docs.unity3d.com/ScriptReference/XR.XRSettings.html"] = new JsonObject
+                    {
+                        ["loadedDeviceName"] = XR.deviceName()
                     },
-                    vrSubsystemMetadata = new VRSubsystems() {
-                        // determines whether or not VR is being used at all
-                        running = XR.isPresent()
+                    ["https://docs.unity3d.com/ScriptReference/XR.XRDisplaySubsystem.html"] = new JsonObject
+                    {
+                        ["running"] = XR.isPresent()
                     }
                 };
 
                 // location
                 if (enableUserLocation) {
-                    Location loc = await this.locationTask;
-                    contextExtension.location = loc;
+                    JsonObject loc = await this.locationTask;
+                    contextExtension["http://ip-api.com/location"] = loc;
                 }
 
                 String activityId = gameId;
@@ -152,62 +167,75 @@ namespace LRS
                 }
 
                 // statement construction
-                return new Statement<Agent, Activity>
+                var statement = new JsonObject
                 {
-                    actor = user,
-                    verb = new Verb
+                    ["actor"] = user,
+                    ["verb"] = new JsonObject
                     {
-                        id = verbId,
-                        display = new LanguageMap
+                        ["id"] = verbId,
+                        ["display"] = new JsonObject
                         {
-                            enUS = verbDisplay
+                            ["en-US"] = verbDisplay
                         }
                     },
-                    objekt = FormActivity(activityId, activityDefinition, objectDefinitionExtension),
-                    context = new Context
+                    ["object"] = FormActivity(activityId, activityDefinition, objectDefinitionExtension),
+                    ["context"] = new JsonObject
                     {
-                        registration = registrationIdentifier,
-                        platform = gameId,
-                        extensions = contextExtension
-                    }
+                        ["registration"] = registrationIdentifier,
+                        ["platform"] = gameId,
+                        ["extensions"] = contextExtension
+                    },
+                    ["timestamp"] = DateTime.UtcNow.ToString("o",CultureInfo.InvariantCulture)
                 };
+
+                return statementFn(statement);
             }
 
-            private async Task<Statement<Agent, Activity>> FormBasicStatement(String verbId,
-                                                                              String verbDisplay,
-                                                                              Agent user,
-                                                                              String gameId,
-                                                                              String gameDisplay,
-                                                                              String registrationIdentifier,
-                                                                              String activityID,
-                                                                              String activityDescription)
+
+
+            private async Task<JsonObject> FormBasicStatement(String verbId,
+                                                              String verbDisplay,
+                                                              JsonObject user,
+                                                              String gameId,
+                                                              String gameDisplay,
+                                                              String registrationIdentifier,
+                                                              String activityID,
+                                                              String activityDescription,
+                                                              Func<JsonObject, JsonObject> statementFn)
             {
-                Statement<Agent, Activity> statement =  await FormBasicStatement(verbId,
-                                                                                 verbDisplay,
-                                                                                 user,
-                                                                                 gameId,
-                                                                                 gameDisplay,
-                                                                                 registrationIdentifier);
-                statement.objekt.id = activityID;
-                statement.objekt.definition.name.enUS = activityDescription;
+                Func <JsonObject, JsonObject> setObjektFn = (s) =>
+                {
+                    s["object"]["id"] = activityID;
+                    s["object"]["definition"]["name"]["en-US"] = activityDescription;
+                    return statementFn(s);
+
+                };
+                JsonObject statement =  await FormBasicStatement(verbId,
+                                                                 verbDisplay,
+                                                                 user,
+                                                                 gameId,
+                                                                 gameDisplay,
+                                                                 registrationIdentifier,
+                                                                 setObjektFn);
                 return statement;
 
             }
 
 
-            private Activity FormActivity(String activityID,
-                                          String activityDescription,
-                                          Extension extension)
+            private JsonObject FormActivity(String activityID,
+                                            String activityDescription,
+                                            JsonObject extension)
             {
-                return new Activity {
-                    id = activityID,
-                    definition = new ActivityDefinition
+                return new JsonObject
+                {
+                    ["id"] = activityID,
+                    ["definition"] = new JsonObject
                     {
-                        name = new LanguageMap
+                        ["name"] = new JsonObject
                         {
-                            enUS = activityDescription
+                            ["en-US"] = activityDescription
                         },
-                        extensions = extension
+                        ["extensions"] = extension
                     }
                 };
             }
@@ -252,13 +280,37 @@ namespace LRS
             public async void SendStatement(String verbId,
                                             String verbDisplay)
             {
+                Func <JsonObject, JsonObject> identity = (s) =>
+                {
+                    return s;
+                };
                 var statement = await FormBasicStatement(verbId,
                                                          verbDisplay,
                                                          user,
                                                          gameId,
                                                          gameDisplay,
-                                                         registrationIdentifier);
-                var statementStr = statement.Serialize();
+                                                         registrationIdentifier,
+                                                         identity);
+                InvokeStatementSent(statement);
+                var statementStr = statement.ToJsonString();
+                var response = await sender.SendStatement(statementStr);
+                // DebugStatements(statementStr, response);
+
+            }
+
+            public async void SendStatement(String verbId,
+                                            String verbDisplay,
+                                            Func <JsonObject, JsonObject> statementFn)
+            {
+                var statement = await FormBasicStatement(verbId,
+                                                         verbDisplay,
+                                                         user,
+                                                         gameId,
+                                                         gameDisplay,
+                                                         registrationIdentifier,
+                                                         statementFn);
+                InvokeStatementSent(statement);
+                var statementStr = statement.ToJsonString();
                 var response = await sender.SendStatement(statementStr);
                 // DebugStatements(statementStr, response);
 
@@ -269,6 +321,10 @@ namespace LRS
                                             String activityID,
                                             String activityDisplay)
             {
+                Func <JsonObject, JsonObject> identity = (s) =>
+                {
+                    return s;
+                };
                 var statement = await FormBasicStatement(verbId,
                                                          verbDisplay,
                                                          user,
@@ -276,8 +332,32 @@ namespace LRS
                                                          gameDisplay,
                                                          registrationIdentifier,
                                                          activityID,
-                                                         activityDisplay);
-                var statementStr = statement.Serialize();
+                                                         activityDisplay,
+                                                         identity);
+                InvokeStatementSent(statement);
+                var statementStr = statement.ToJsonString();
+                var response = await sender.SendStatement(statementStr);
+                // DebugStatements(statementStr, response);
+
+            }
+
+            public async void SendStatement(String verbId,
+                                            String verbDisplay,
+                                            String activityID,
+                                            String activityDisplay,
+                                            Func <JsonObject, JsonObject> statementFn)
+            {
+                var statement = await FormBasicStatement(verbId,
+                                                         verbDisplay,
+                                                         user,
+                                                         gameId,
+                                                         gameDisplay,
+                                                         registrationIdentifier,
+                                                         activityID,
+                                                         activityDisplay,
+                                                         statementFn);
+                InvokeStatementSent(statement);
+                var statementStr = statement.ToJsonString();
                 var response = await sender.SendStatement(statementStr);
                 // DebugStatements(statementStr, response);
 
@@ -285,30 +365,35 @@ namespace LRS
 
             async void SendCustomStatement(String verbId,
                                            String verbDisplay,
-                                           Agent user,
+                                           JsonObject user,
                                            String gameId,
                                            String gameDisplay,
                                            String registrationIdentifier)
             {
+                Func <JsonObject, JsonObject> identity = (s) =>
+                {
+                    return s;
+                };
                 var statement = await FormBasicStatement(verbId,
                                                          verbDisplay,
                                                          user,
                                                          gameId,
                                                          gameDisplay,
-                                                         registrationIdentifier);
-                var statementStr = statement.Serialize();
+                                                         registrationIdentifier,
+                                                         identity);
+                var statementStr = statement.ToJsonString();
                 var response = await sender.SendStatement(statementStr);
                 // DebugStatements(statementStr, response);
 
             }
 
-            async void SendScratchStatement<TActor, TObjekt>(Statement<TActor, TObjekt> statement)
+            /*async void SendScratchStatement<TActor, TObjekt>(Statement<TActor, TObjekt> statement)
                 where TActor: IActor
                 where TObjekt: IObjekt
             {
-                var statementStr = statement.Serialize();
+                var statementStr = statement.ToJsonString();
                 var response = await sender.SendStatement(statementStr);
-            }
+            }*/
         }
     }
 }
