@@ -252,6 +252,10 @@ class CustomizeStatements : MonoBehaviour
 }
 ```
 
+### For anyone transitioning from the 1.0.x build to 1.1.x
+
+Remove any references to the XAPI namespace by deleting the following line: `using XAPI`. this namespace no longer exists.
+
 
 ### Technical mumbo jumbo
 
