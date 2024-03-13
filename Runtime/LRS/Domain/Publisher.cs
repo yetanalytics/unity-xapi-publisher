@@ -1,6 +1,4 @@
 using System;
-using XAPI;
-using XAPI.Metadata;
 using System.Threading.Tasks;
 using RestSharp;
 using System.Collections.Concurrent;
