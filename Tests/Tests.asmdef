@@ -4,15 +4,17 @@
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "XAPI",
-        "XAPI.Metadata"
+        "LRS",
+        "LRS.Domain",
+        "System.Text.Json"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": true,
     "precompiledReferences": [
-        "nunit.framework.dll"
+        "nunit.framework.dll",
+        "System.Text.Json.dll"
     ],
     "autoReferenced": false,
     "defineConstraints": [
