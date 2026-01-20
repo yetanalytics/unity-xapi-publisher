@@ -4,28 +4,33 @@ using RestSharp.Authenticators;
 using System.Threading.Tasks;
 
 
-namespace LRS {
-    public class Sender {
+namespace LRS
+{
+    public class Sender
+    {
         public Sender(String LRSUrl,
                       String LRSKey,
-                      String LRSSecret) 
+                      String LRSSecret)
         {
             this.LRSUrl = LRSUrl;
             this.LRSKey = LRSKey;
             this.LRSSecret = LRSSecret;
         }
 
-        private String LRSUrl {set;get;}
-        private String LRSKey {set;get;}
-        private String LRSSecret {set;get;}
+        private String LRSUrl { set; get; }
+        private String LRSKey { set; get; }
+        private String LRSSecret { set; get; }
 
-        public async Task<RestResponse> SendStatement(String statement) {
-            var client = new RestClient(LRSUrl) {
-                Authenticator = new HttpBasicAuthenticator(LRSKey,LRSSecret)
+        public async Task<RestResponse> SendStatement(String statement)
+        {
+            var options = new RestClientOptions(LRSUrl)
+            {
+                Authenticator = new HttpBasicAuthenticator(LRSKey, LRSSecret)
             };
+            var client = new RestClient(options);
             var request = new RestRequest("/xapi/statements", Method.Post);
             request.AddHeader("Accept", "application/json");
-            request.AddStringBody(statement,DataFormat.Json);
+            request.AddStringBody(statement, DataFormat.Json);
             request.AddHeader("X-Experience-API-Version", "1.0.1");
             return await client.ExecutePostAsync(request);
         }
