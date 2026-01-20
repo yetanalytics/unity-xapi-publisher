@@ -16,10 +16,11 @@
         "nunit.framework.dll",
         "System.Text.Json.dll"
     ],
-    "autoReferenced": false,
+    "autoReferenced": true,
     "defineConstraints": [
         "UNITY_INCLUDE_TESTS"
     ],
     "versionDefines": [],
-    "noEngineReferences": false
+    "noEngineReferences": false,
+    "testAssemblies": true
 }

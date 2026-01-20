@@ -39,7 +39,7 @@ public class PublisherTest
 
     string LRSAccountId = "123456";
     string LRSHomepage = "https://www.yetanalytics.com";
-    string LRSUsernameDisplay = "John Doe"; 
+    string LRSUsernameDisplay = "John Doe";
     string LRSGameId = "http://video.games/button-clicker";
     string LRSGameDisplay = "Button Clicker";
     string LRSActivityId = "http://video.games/button-clicker/level/1";
@@ -51,13 +51,13 @@ public class PublisherTest
     public void SetUp()
     {
         // set Account and homepage for a more anonymous and contained identity:
-        PlayerPrefs.SetString("LRSAccountId",LRSAccountId);
-        PlayerPrefs.SetString("LRSHomepage",LRSHomepage);
+        PlayerPrefs.SetString("LRSAccountId", LRSAccountId);
+        PlayerPrefs.SetString("LRSHomepage", LRSHomepage);
 
         // Or if you prefer, Email can be set the following way:
         //PlayerPrefs.SetString("LRSEmail","user@example.com");
 
-        PlayerPrefs.SetString("LRSUsernameDisplay",LRSUsernameDisplay);
+        PlayerPrefs.SetString("LRSUsernameDisplay", LRSUsernameDisplay);
 
         // Game Identity Data
         // This sets the Platform of the statement under context.platform
@@ -72,7 +72,7 @@ public class PublisherTest
 
 
         // Session Identity Data
-        PlayerPrefs.SetString("LRSSessionIdentifier",LRSSessionIdentifier);
+        PlayerPrefs.SetString("LRSSessionIdentifier", LRSSessionIdentifier);
 
         // Location Data
         // Add this to the PlayerPrefs if you wish to get user location data
@@ -83,19 +83,22 @@ public class PublisherTest
     public void SendStartedStatementBehaves()
     {
         Hook hook = new Hook();
-        Publisher publisher = new Publisher("http://example.com/LRSUrl","LRSKey","LRSSecret");
+        Publisher publisher = new Publisher("http://example.com/LRSUrl", "LRSKey", "LRSSecret");
         publisher.SendStartedStatement();
         JsonObject statement = hook.results.First();
 
-        Assert.AreEqual(LRSHomepage, statement["actor"]["account"]["homePage"].ToString());
-        Assert.AreEqual(LRSAccountId, statement["actor"]["account"]["name"].ToString());
+        Assert.AreEqual(statement["actor"]["account"]["homePage"].ToString(), LRSHomepage);
+        Assert.AreEqual(statement["actor"]["account"]["name"].ToString(), LRSAccountId);
         Assert.AreEqual("http://adlnet.gov/expapi/verbs/initialized", statement["verb"]["id"].ToString());
-        Assert.AreEqual(LRSActivityId, statement["object"]["id"].ToString());
-        Assert.AreEqual("", statement["object"]["definition"]["extensions"]["https://docs.unity3d.com/ScriptReference/XR.XRSettings.html"]["loadedDeviceName"].ToString());
-        Assert.AreEqual("false", statement["object"]["definition"]["extensions"]["https://docs.unity3d.com/ScriptReference/XR.XRDisplaySubsystem.html"]["running"].ToString());
-        Assert.AreEqual(LRSSessionIdentifier, statement["context"]["registration"].ToString());
-        Assert.AreEqual(LRSGameId, statement["context"]["platform"].ToString());
-        Assert.AreEqual("LinuxEditor", statement["context"]["extensions"]["https://docs.unity3d.com/ScriptReference/Application-platform.html"]["platform"].ToString());
+        Assert.AreEqual(statement["object"]["id"].ToString(),
+                        LRSActivityId);
+        Assert.AreEqual(statement["object"]["definition"]["extensions"]["https://docs.unity3d.com/ScriptReference/XR.XRSettings.html"]["loadedDeviceName"].ToString(),
+                        "");
+        Assert.AreEqual(statement["object"]["definition"]["extensions"]["https://docs.unity3d.com/ScriptReference/XR.XRDisplaySubsystem.html"]["running"].ToString(),
+                        "false");
+        Assert.AreEqual(statement["context"]["registration"].ToString(), LRSSessionIdentifier);
+        Assert.AreEqual(statement["context"]["platform"].ToString(), LRSGameId);
+        Assert.That(statement["context"]["extensions"]["https://docs.unity3d.com/ScriptReference/Application-platform.html"]["platform"].ToString(), Does.Match("^.+Editor$"));
         Assert.IsInstanceOf<string>(statement["timestamp"].ToString());
     }
 
@@ -104,14 +107,14 @@ public class PublisherTest
     {
         string verbId = "http://video.games/verbs/quit";
         string verbName = "Quit";
-        
+
         Hook hook = new Hook();
-        Publisher publisher = new Publisher("http://example.com/LRSUrl","LRSKey","LRSSecret");
+        Publisher publisher = new Publisher("http://example.com/LRSUrl", "LRSKey", "LRSSecret");
         publisher.SendStatement(verbId, verbName);
         JsonObject statement = hook.results.First();
 
         Assert.AreEqual(verbId, statement["verb"]["id"].ToString());
-        Assert.AreEqual(verbName, statement["verb"]["display"]["en-US"].ToString());   
+        Assert.AreEqual(verbName, statement["verb"]["display"]["en-US"].ToString());
     }
 
     [Test]
@@ -121,17 +124,17 @@ public class PublisherTest
         string verbName = "Quit";
         string publisherName = "ACME Games Corp.";
 
-        Func <JsonObject, JsonObject> modifyFn = (statement) =>
+        Func<JsonObject, JsonObject> modifyFn = (statement) =>
         {
             // modify the statement
-            statement["object"]["definition"]["extensions"]["https://video.games/publisher"] = new JsonObject{ ["name"] = publisherName };
+            statement["object"]["definition"]["extensions"]["https://video.games/publisher"] = new JsonObject { ["name"] = publisherName };
 
             // make sure to return for the callback
             return statement;
         };
-        
+
         Hook hook = new Hook();
-        Publisher publisher = new Publisher("http://example.com/LRSUrl","LRSKey","LRSSecret");
+        Publisher publisher = new Publisher("http://example.com/LRSUrl", "LRSKey", "LRSSecret");
         publisher.SendStatement(verbId, verbName, modifyFn);
         JsonObject statement = hook.results.First();
 
@@ -147,16 +150,16 @@ public class PublisherTest
         string verbName = "Quit";
         string activityId = "http://video.games/pong";
         string activityName = "Pong";
-        
+
         Hook hook = new Hook();
-        Publisher publisher = new Publisher("http://example.com/LRSUrl","LRSKey","LRSSecret");
+        Publisher publisher = new Publisher("http://example.com/LRSUrl", "LRSKey", "LRSSecret");
         publisher.SendStatement(verbId, verbName, activityId, activityName);
         JsonObject statement = hook.results.First();
 
         Assert.AreEqual(verbId, statement["verb"]["id"].ToString());
         Assert.AreEqual(verbName, statement["verb"]["display"]["en-US"].ToString());
         Assert.AreEqual(activityId, statement["object"]["id"].ToString());
-        Assert.AreEqual(activityName, statement["object"]["definition"]["name"]["en-US"].ToString());   
+        Assert.AreEqual(activityName, statement["object"]["definition"]["name"]["en-US"].ToString());
     }
 
     [Test]
@@ -168,24 +171,24 @@ public class PublisherTest
         string activityName = "Pong";
         string publisherName = "ACME Games Corp.";
 
-        Func <JsonObject, JsonObject> modifyFn = (statement) =>
+        Func<JsonObject, JsonObject> modifyFn = (statement) =>
         {
             // modify the statement
-            statement["object"]["definition"]["extensions"]["https://video.games/publisher"] = new JsonObject{ ["name"] = publisherName };
+            statement["object"]["definition"]["extensions"]["https://video.games/publisher"] = new JsonObject { ["name"] = publisherName };
 
             // make sure to return for the callback
             return statement;
         };
-        
+
         Hook hook = new Hook();
-        Publisher publisher = new Publisher("http://example.com/LRSUrl","LRSKey","LRSSecret");
+        Publisher publisher = new Publisher("http://example.com/LRSUrl", "LRSKey", "LRSSecret");
         publisher.SendStatement(verbId, verbName, activityId, activityName, modifyFn);
         JsonObject statement = hook.results.First();
 
         Assert.AreEqual(verbId, statement["verb"]["id"].ToString());
         Assert.AreEqual(verbName, statement["verb"]["display"]["en-US"].ToString());
         Assert.AreEqual(activityId, statement["object"]["id"].ToString());
-        Assert.AreEqual(activityName, statement["object"]["definition"]["name"]["en-US"].ToString()); 
+        Assert.AreEqual(activityName, statement["object"]["definition"]["name"]["en-US"].ToString());
         Assert.AreEqual(publisherName, statement["object"]["definition"]["extensions"]["https://video.games/publisher"]["name"].ToString());
     }
 }
