@@ -32,7 +32,8 @@ namespace LRS
                 OnStatementSent?.Invoke(statement);
             }
 
-            private JsonObject formAgent() {
+            private JsonObject formAgent()
+            {
                 bool hasEmail = PlayerPrefs.HasKey("LRSEmail");
                 bool hasAccount = PlayerPrefs.HasKey("LRSAccountId") && PlayerPrefs.HasKey("LRSHomepage");
                 if (hasEmail)
@@ -78,8 +79,14 @@ namespace LRS
             private String gameId { get { return PlayerPrefs.GetString("LRSGameId"); } }
             private String gameDisplay { get { return PlayerPrefs.GetString("LRSGameDisplay"); } }
 
-            private bool hasCustomActivityEnv { get { return PlayerPrefs.HasKey("LRSActivityId") &&
-                                                             PlayerPrefs.HasKey("LRSActivityDefinition"); } }
+            private bool hasCustomActivityEnv
+            {
+                get
+                {
+                    return PlayerPrefs.HasKey("LRSActivityId") &&
+                                                             PlayerPrefs.HasKey("LRSActivityDefinition");
+                }
+            }
 
             private String customActivityId { get { return PlayerPrefs.GetString("LRSActivityId"); } }
             private String customActivityDefinition { get { return PlayerPrefs.GetString("LRSActivityDefinition"); } }
@@ -114,13 +121,13 @@ namespace LRS
                 }
 
                 // otherwise, we go ahead and populate the cache by calling the API
-                return await Task.Run(async () =>
+                var request = new RestRequest($"json/{ip}");
+                location = await client.GetAsync<JsonObject>(request);
+                if (location != null)
                 {
-                    location = await client.GetJsonAsync<JsonObject>(string.Format("json/{0}", ip));
                     downloadCache.TryAdd("location", location);
-
-                    return location;
-                });
+                }
+                return location;
             }
 
             private async Task<JsonObject> FormBasicStatement(String verbId,
@@ -152,7 +159,8 @@ namespace LRS
                 };
 
                 // location
-                if (enableUserLocation) {
+                if (enableUserLocation)
+                {
                     JsonObject loc = await this.locationTask;
                     contextExtension["http://ip-api.com/location"] = loc;
                 }
@@ -161,7 +169,8 @@ namespace LRS
                 String activityDefinition = gameDisplay;
 
                 // if there's a custom ActivityID in the env, set activityId to that one.
-                if (hasCustomActivityEnv) {
+                if (hasCustomActivityEnv)
+                {
                     activityId = customActivityId;
                     activityDefinition = customActivityDefinition;
                 }
@@ -185,7 +194,7 @@ namespace LRS
                         ["platform"] = gameId,
                         ["extensions"] = contextExtension
                     },
-                    ["timestamp"] = DateTime.UtcNow.ToString("o",CultureInfo.InvariantCulture)
+                    ["timestamp"] = DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture)
                 };
 
                 return statementFn(statement);
@@ -203,14 +212,14 @@ namespace LRS
                                                               String activityDescription,
                                                               Func<JsonObject, JsonObject> statementFn)
             {
-                Func <JsonObject, JsonObject> setObjektFn = (s) =>
+                Func<JsonObject, JsonObject> setObjektFn = (s) =>
                 {
                     s["object"]["id"] = activityID;
                     s["object"]["definition"]["name"]["en-US"] = activityDescription;
                     return statementFn(s);
 
                 };
-                JsonObject statement =  await FormBasicStatement(verbId,
+                JsonObject statement = await FormBasicStatement(verbId,
                                                                  verbDisplay,
                                                                  user,
                                                                  gameId,
@@ -240,7 +249,8 @@ namespace LRS
                 };
             }
 
-            private void DebugStatements(string statement, RestResponse response) {
+            private void DebugStatements(string statement, RestResponse response)
+            {
                 Debug.Log(statement);
                 Debug.Log(response.Content);
                 Debug.Log(response.ResponseStatus);
@@ -280,7 +290,7 @@ namespace LRS
             public async void SendStatement(String verbId,
                                             String verbDisplay)
             {
-                Func <JsonObject, JsonObject> identity = (s) =>
+                Func<JsonObject, JsonObject> identity = (s) =>
                 {
                     return s;
                 };
@@ -300,7 +310,7 @@ namespace LRS
 
             public async void SendStatement(String verbId,
                                             String verbDisplay,
-                                            Func <JsonObject, JsonObject> statementFn)
+                                            Func<JsonObject, JsonObject> statementFn)
             {
                 var statement = await FormBasicStatement(verbId,
                                                          verbDisplay,
@@ -321,7 +331,7 @@ namespace LRS
                                             String activityID,
                                             String activityDisplay)
             {
-                Func <JsonObject, JsonObject> identity = (s) =>
+                Func<JsonObject, JsonObject> identity = (s) =>
                 {
                     return s;
                 };
@@ -345,7 +355,7 @@ namespace LRS
                                             String verbDisplay,
                                             String activityID,
                                             String activityDisplay,
-                                            Func <JsonObject, JsonObject> statementFn)
+                                            Func<JsonObject, JsonObject> statementFn)
             {
                 var statement = await FormBasicStatement(verbId,
                                                          verbDisplay,
@@ -370,7 +380,7 @@ namespace LRS
                                            String gameDisplay,
                                            String registrationIdentifier)
             {
-                Func <JsonObject, JsonObject> identity = (s) =>
+                Func<JsonObject, JsonObject> identity = (s) =>
                 {
                     return s;
                 };
