@@ -1,11 +1,11 @@
 {
   "name": "com.yetanalytics.unity-xapi-publisher",
-  "version": "1.1.0",
+  "version": "1.1.1-alpha",
   "displayName": "Unity Xapi Publisher",
   "description": "This package gives you the tooling needed to send basic statements to an LRS",
   "unity": "2021.3",
   "unityRelease": "4f1",
- "keywords": [
+  "keywords": [
     "XAPI",
     "integration",
     "data"
