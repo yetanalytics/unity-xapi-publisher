@@ -1,2 +1,7 @@
 /Assets/Plugins/.signature.p7s
 /Assets/UnityXapiPublisher/Runtime/.vscode
+reports
+reports.meta
+.clj-kondo
+.lsp
+.vscode
